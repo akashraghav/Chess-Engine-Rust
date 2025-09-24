@@ -3,10 +3,10 @@
 
 use crate::Bitboard;
 
-#[cfg(target_arch = "x86_64")]
+#[cfg(all(target_arch = "x86_64", target_feature = "avx2"))]
 use std::arch::x86_64::*;
 
-#[cfg(target_arch = "x86")]
+#[cfg(all(target_arch = "x86", target_feature = "avx2"))]
 use std::arch::x86::*;
 
 /// SIMD-optimized bitboard operations
@@ -19,7 +19,7 @@ impl SimdBitboard {
         any(target_arch = "x86", target_arch = "x86_64")
     ))]
     #[inline]
-    pub unsafe fn parallel_and_4(a: &[Bitboard; 4], b: &[Bitboard; 4]) -> [Bitboard; 4] {
+    unsafe fn parallel_and_4_avx2(a: &[Bitboard; 4], b: &[Bitboard; 4]) -> [Bitboard; 4] {
         let a_vec = _mm256_load_si256(a.as_ptr() as *const __m256i);
         let b_vec = _mm256_load_si256(b.as_ptr() as *const __m256i);
         let result = _mm256_and_si256(a_vec, b_vec);
@@ -35,7 +35,7 @@ impl SimdBitboard {
         any(target_arch = "x86", target_arch = "x86_64")
     ))]
     #[inline]
-    pub unsafe fn parallel_or_4(a: &[Bitboard; 4], b: &[Bitboard; 4]) -> [Bitboard; 4] {
+    unsafe fn parallel_or_4_avx2(a: &[Bitboard; 4], b: &[Bitboard; 4]) -> [Bitboard; 4] {
         let a_vec = _mm256_load_si256(a.as_ptr() as *const __m256i);
         let b_vec = _mm256_load_si256(b.as_ptr() as *const __m256i);
         let result = _mm256_or_si256(a_vec, b_vec);
@@ -67,7 +67,7 @@ impl SimdBitboard {
         any(target_arch = "x86", target_arch = "x86_64")
     ))]
     #[inline]
-    pub unsafe fn parallel_popcount_4(boards: &[Bitboard; 4]) -> [u32; 4] {
+    unsafe fn parallel_popcount_4_popcnt(boards: &[Bitboard; 4]) -> [u32; 4] {
         [
             _popcnt64(boards[0].value() as i64) as u32,
             _popcnt64(boards[1].value() as i64) as u32,
@@ -82,7 +82,7 @@ impl SimdBitboard {
         any(target_arch = "x86", target_arch = "x86_64")
     ))]
     #[inline]
-    pub unsafe fn parallel_shift_left_4(boards: &[Bitboard; 4], shift: i32) -> [Bitboard; 4] {
+    unsafe fn parallel_shift_left_4_avx2(boards: &[Bitboard; 4], shift: i32) -> [Bitboard; 4] {
         let vec = _mm256_load_si256(boards.as_ptr() as *const __m256i);
         let result = _mm256_slli_epi64(vec, shift);
 
@@ -97,7 +97,7 @@ impl SimdBitboard {
         any(target_arch = "x86", target_arch = "x86_64")
     ))]
     #[inline]
-    pub unsafe fn parallel_shift_right_4(boards: &[Bitboard; 4], shift: i32) -> [Bitboard; 4] {
+    unsafe fn parallel_shift_right_4_avx2(boards: &[Bitboard; 4], shift: i32) -> [Bitboard; 4] {
         let vec = _mm256_load_si256(boards.as_ptr() as *const __m256i);
         let result = _mm256_srli_epi64(vec, shift);
 
@@ -126,6 +126,118 @@ impl SimdBitboard {
             boards[3].count_bits(),
         ]
     }
+
+    /// Fallback implementations for shift operations
+    #[inline]
+    pub fn parallel_shift_left_4_fallback(boards: &[Bitboard; 4], shift: u32) -> [Bitboard; 4] {
+        [
+            Bitboard::new(boards[0].value() << shift),
+            Bitboard::new(boards[1].value() << shift),
+            Bitboard::new(boards[2].value() << shift),
+            Bitboard::new(boards[3].value() << shift),
+        ]
+    }
+
+    #[inline]
+    pub fn parallel_shift_right_4_fallback(boards: &[Bitboard; 4], shift: u32) -> [Bitboard; 4] {
+        [
+            Bitboard::new(boards[0].value() >> shift),
+            Bitboard::new(boards[1].value() >> shift),
+            Bitboard::new(boards[2].value() >> shift),
+            Bitboard::new(boards[3].value() >> shift),
+        ]
+    }
+
+    /// Always-available wrapper functions that choose between optimized and fallback
+    #[inline]
+    pub fn parallel_and_4(a: &[Bitboard; 4], b: &[Bitboard; 4]) -> [Bitboard; 4] {
+        #[cfg(all(
+            target_feature = "avx2",
+            any(target_arch = "x86", target_arch = "x86_64")
+        ))]
+        {
+            unsafe { Self::parallel_and_4_avx2(a, b) }
+        }
+        #[cfg(not(all(
+            target_feature = "avx2",
+            any(target_arch = "x86", target_arch = "x86_64")
+        )))]
+        {
+            Self::parallel_and_4_fallback(a, b)
+        }
+    }
+
+    #[inline]
+    pub fn parallel_or_4(a: &[Bitboard; 4], b: &[Bitboard; 4]) -> [Bitboard; 4] {
+        #[cfg(all(
+            target_feature = "avx2",
+            any(target_arch = "x86", target_arch = "x86_64")
+        ))]
+        {
+            unsafe { Self::parallel_or_4_avx2(a, b) }
+        }
+        #[cfg(not(all(
+            target_feature = "avx2",
+            any(target_arch = "x86", target_arch = "x86_64")
+        )))]
+        {
+            Self::parallel_or_4_fallback(a, b)
+        }
+    }
+
+    #[inline]
+    pub fn parallel_popcount_4(boards: &[Bitboard; 4]) -> [u32; 4] {
+        #[cfg(all(
+            target_feature = "popcnt",
+            any(target_arch = "x86", target_arch = "x86_64")
+        ))]
+        {
+            unsafe { Self::parallel_popcount_4_popcnt(boards) }
+        }
+        #[cfg(not(all(
+            target_feature = "popcnt",
+            any(target_arch = "x86", target_arch = "x86_64")
+        )))]
+        {
+            Self::parallel_popcount_4_fallback(boards)
+        }
+    }
+
+    #[inline]
+    pub fn parallel_shift_left_4(boards: &[Bitboard; 4], shift: i32) -> [Bitboard; 4] {
+        #[cfg(all(
+            target_feature = "avx2",
+            any(target_arch = "x86", target_arch = "x86_64")
+        ))]
+        {
+            unsafe { Self::parallel_shift_left_4_avx2(boards, shift) }
+        }
+        #[cfg(not(all(
+            target_feature = "avx2",
+            any(target_arch = "x86", target_arch = "x86_64")
+        )))]
+        {
+            Self::parallel_shift_left_4_fallback(boards, shift as u32)
+        }
+    }
+
+    #[inline]
+    pub fn parallel_shift_right_4(boards: &[Bitboard; 4], shift: i32) -> [Bitboard; 4] {
+        #[cfg(all(
+            target_feature = "avx2",
+            any(target_arch = "x86", target_arch = "x86_64")
+        ))]
+        {
+            unsafe { Self::parallel_shift_right_4_avx2(boards, shift) }
+        }
+        #[cfg(not(all(
+            target_feature = "avx2",
+            any(target_arch = "x86", target_arch = "x86_64")
+        )))]
+        {
+            Self::parallel_shift_right_4_fallback(boards, shift as u32)
+        }
+    }
 }
 
 /// High-level SIMD bitboard operations with runtime feature detection
@@ -138,7 +250,7 @@ impl OptimizedBitboard {
         #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
         {
             if is_x86_feature_detected!("avx2") {
-                unsafe { SimdBitboard::parallel_and_4(a, b) }
+                SimdBitboard::parallel_and_4(a, b)
             } else {
                 SimdBitboard::parallel_and_4_fallback(a, b)
             }
@@ -155,7 +267,7 @@ impl OptimizedBitboard {
         #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
         {
             if is_x86_feature_detected!("avx2") {
-                unsafe { SimdBitboard::parallel_or_4(a, b) }
+                SimdBitboard::parallel_or_4(a, b)
             } else {
                 SimdBitboard::parallel_or_4_fallback(a, b)
             }
@@ -172,7 +284,7 @@ impl OptimizedBitboard {
         #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
         {
             if is_x86_feature_detected!("popcnt") {
-                unsafe { SimdBitboard::parallel_popcount_4(boards) }
+                SimdBitboard::parallel_popcount_4(boards)
             } else {
                 SimdBitboard::parallel_popcount_4_fallback(boards)
             }
@@ -189,7 +301,7 @@ impl OptimizedBitboard {
         #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
         {
             if is_x86_feature_detected!("avx2") {
-                unsafe { SimdBitboard::parallel_shift_left_4(boards, 8) }
+                SimdBitboard::parallel_shift_left_4(boards, 8)
             } else {
                 [
                     boards[0].shift_north(),
@@ -216,7 +328,7 @@ impl OptimizedBitboard {
         #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
         {
             if is_x86_feature_detected!("avx2") {
-                unsafe { SimdBitboard::parallel_shift_right_4(boards, 8) }
+                SimdBitboard::parallel_shift_right_4(boards, 8)
             } else {
                 [
                     boards[0].shift_south(),

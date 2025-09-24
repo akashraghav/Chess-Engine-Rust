@@ -492,7 +492,7 @@ impl MemoryPrefetch {
 
         #[cfg(target_arch = "x86_64")]
         unsafe {
-            std::arch::x86_64::_mm_prefetch(ptr as *const i8, std::arch::x86_64::_MM_HINT_T0);
+            std::arch::x86_64::_mm_prefetch(_ptr as *const i8, std::arch::x86_64::_MM_HINT_T0);
         }
     }
 }

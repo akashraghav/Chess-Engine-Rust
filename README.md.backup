@@ -1,381 +1,131 @@
 # Chess Engine Rust
 
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
+[![Rust](https://img.shields.io/badge/rust-1.75%2B-orange.svg)](https://www.rust-lang.org/)
+[![Platform](https://img.shields.io/badge/platform-cross--platform-green.svg)](#platform-support)
 
-[![Rust](https://img.shields.io/badge/rust-1.75%2B-orange.svg)](https://www.rust-lang.org/) [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md) ![Visitors](https://visitor-badge.laobi.icu/badge?page_id=akashraghav.Chess-Engine-Rust)
-
-
-
-A chess engine implemented in Rust with support for standard chess rules and FEN parsing. The engine provides a basic API for move generation, position evaluation, and game management.
-
-
-
-## Features [![Platform](https://img.shields.io/badge/platform-cross--platform-green.svg)](#platform-support)
-
-
-
-- Standard chess rules implementationA chess engine implemented in Rust with support for standard chess rules and FEN parsing. The engine provides a basic API for move generation, position evaluation, and game management.
-
-- FEN position parsing and export
-
-- Legal move generationA chess engine implemented in Rust with support for standard chess rules and FEN parsing. The engine provides a simple API for move generation, position evaluation, and game management.
-
-- Position evaluation with material and positional scoring
-
-- Basic search algorithms (alpha-beta pruning)## Features
-
-- Cross-platform compilation support
+A chess engine implemented in Rust with support for standard chess rules and FEN parsing. The engine provides a simple API for move generation, position evaluation, and game management.
 
 **Use cases**: Game development, chess analysis tools, educational projects.
 
-## Project Structure
-
-- Standard chess rules implementation
-
-```
-
-crates/- FEN position parsing and export---
-
-├── chess-core/         # Core chess logic and evaluation
-
-├── chess-engine/       # High-level engine API- Legal move generation
-
-├── chess-engine-ffi/   # C FFI bindings
-
-└── chess-engine-jni/   # Java JNI bindings- Position evaluation with material and positional scoring## Quick Start
-
-```
-
-- Basic search algorithms (alpha-beta pruning)
+---
 
 ## Quick Start
-
-- Cross-platform compilation support
 
 ### Installation
 
-
-
 ```bash
+# Add to your Cargo.toml
+[dependencies]
+chess-engine = { path = "crates/chess-engine" }
+chess-core = { path = "crates/chess-core" }
+```
 
-# Clone the repository## Project Structure```bash
-
-git clone https://github.com/akashraghav/Chess-Engine-Rust.git
-
-cd Chess-Engine-Rust/chess-engine-rust# Add to your Cargo.toml
-
-
-
-# Build the project```[dependencies]
-
-cargo build --release
-
-```crates/chess-engine = { path = "crates/chess-engine" }
-
-
-
-### Basic Usage├── chess-core/         # Core chess logic and evaluationchess-core = { path = "crates/chess-core" }
-
-
-
-```rust├── chess-engine/       # High-level engine API```
-
-use chess_engine::{ChessEngineBuilder};
-
-├── chess-engine-ffi/   # C FFI bindings
-
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-
-    // Create engine└── chess-engine-jni/   # Java JNI bindings### Basic Usage
-
-    let mut engine = ChessEngineBuilder::new()
-
-        .with_depth(6)```
-
-        .build()?;
+### Basic Usage
 
 ```rust
+use chess_engine::{ChessEngineBuilder, Color};
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Create engine
+    let mut engine = ChessEngineBuilder::new()
+        .with_depth(6)
+        .build()?;
 
     // Make moves
-
-    engine.make_move_from_uci("e2e4")?;  // 1. e4## Quick Startuse chess_engine::{ChessEngineBuilder, Color};
-
+    engine.make_move_from_uci("e2e4")?;  // 1. e4
     engine.make_move_from_uci("e7e5")?;  // 1... e5
 
-
-
     // Get engine's move
-
-    if let Some(best_move) = engine.find_best_move()? {### Installationfn main() -> Result<(), Box<dyn std::error::Error>> {
-
+    if let Some(best_move) = engine.find_best_move()? {
         println!("Engine plays: {}", best_move);
-
-        println!("Evaluation: {}", engine.evaluate());    // Create engine
-
+        println!("Evaluation: {}", engine.evaluate());
     }
 
-```bash    let mut engine = ChessEngineBuilder::new()
-
     Ok(())
-
-}# Clone the repository        .with_depth(6)
-
+}
 ```
 
-git clone https://github.com/akashraghav/Chess-Engine-Rust.git        .build()?;
-
-## Examples
-
-cd Chess-Engine-Rust/chess-engine-rust
-
-```bash
-
-# Run basic examples    // Make moves
-
-cargo run --example basic_tactics
-
-cargo run --example restructured_demo# Build the project    engine.make_move_from_uci("e2e4")?;  // 1. e4
-
-
-
-# Interactive game (requires user input)cargo build --release    engine.make_move_from_uci("e7e5")?;  // 1... e5
-
-cargo run --example basic_usage
-
-``````
-
-
-
-## Development    // Get engine's move
-
-
-
-### Running Tests### Basic Usage    if let Some(best_move) = engine.find_best_move()? {
-
-
-
-```bash        println!("Engine plays: {}", best_move);
-
-# Run all tests
-
-cargo test --workspace```rust        println!("Evaluation: {}", engine.evaluate());
-
-
-
-# Run specific test suitesuse chess_engine::{ChessEngineBuilder};    }
-
-cargo test --test fen_parser_tests
-
-cargo test --test evaluation_regression_tests
-
-cargo test --test engine_integration_tests
-
-```fn main() -> Result<(), Box<dyn std::error::Error>> {    Ok(())
-
-
-
-### Building    // Create engine}
-
-
-
-```bash    let mut engine = ChessEngineBuilder::new()```
-
-# Development build
-
-cargo build        .with_depth(6)
-
-
-
-# Release build        .build()?;## Features
-
-cargo build --release
-
-
-
-# Cross-compilation (if targets are installed)
-
-cargo build --target=x86_64-apple-darwin    // Make moves### Core Functionality
-
-cargo build --target=aarch64-apple-darwin
-
-```    engine.make_move_from_uci("e2e4")?;  // 1. e4- Standard chess rules implementation
-
-
-
-### Testing    engine.make_move_from_uci("e7e5")?;  // 1... e5- FEN position parsing and export
-
-
-
-The project includes comprehensive tests:- Legal move generation
-
-- 82+ unit tests for core functionality
-
-- 33 regression tests for FEN parsing and evaluation    // Get engine's move- Position evaluation
-
-- Integration tests for engine API
-
-- Cross-platform compilation tests    if let Some(best_move) = engine.find_best_move()? {- Basic search algorithms
-
-
-
-Run the full test suite:        println!("Engine plays: {}", best_move);
-
-```bash
-
-./comprehensive_test.sh        println!("Evaluation: {}", engine.evaluate());### Architecture
-
-```
-
-    }- Multi-crate design with clean separation
-
-## Architecture
-
+## Features
+
+### Core Functionality
+- Standard chess rules implementation
+- FEN position parsing and export
+- Legal move generation
+- Position evaluation
+- Basic search algorithms
+
+### Architecture
+- Multi-crate design with clean separation
 - Comprehensive test coverage (115+ tests)
+- Cross-platform compilation support
+- FFI bindings for C and Java integration
 
-The engine uses a multi-crate architecture:
-
-    Ok(())- Cross-platform compilation support
-
-- **chess-core**: Core chess logic, board representation, move generation, and evaluation
-
-- **chess-engine**: High-level API and engine interface}- FFI bindings for C and Java integration
-
-- **chess-engine-ffi**: C FFI bindings for integration with other languages
-
-- **chess-engine-jni**: Java JNI bindings for Android/JVM integration```
-
-
-
-## License### Technical Details
-
-
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.## Examples- Bitboard-based board representation
-
+### Technical Details
+- Bitboard-based board representation
 - Alpha-beta search with basic optimizations
+- Material and positional evaluation
+- Support for standard chess formats
 
-```bash- Material and positional evaluation
-
-# Run basic examples- Support for standard chess formats
-
-cargo run --example basic_tactics
-
-cargo run --example restructured_demo---
-
-
-
-# Interactive game (requires user input)## Project Structure
-
-cargo run --example basic_usage
-
-``````
-
-crates/
-
-## Development├── chess-core/         # Core chess logic and evaluation
-
-├── chess-engine/       # High-level engine API
-
-### Running Tests├── chess-engine-ffi/   # C FFI bindings
-
-└── chess-engine-jni/   # Java JNI bindings
-
-```bash```
-
-# Run all tests
-
-cargo test --workspace### Development
-
-
-
-# Run specific test suites```bash
-
-cargo test --test fen_parser_tests# Run tests
-
-cargo test --test evaluation_regression_testscargo test --workspace
-
-cargo test --test engine_integration_tests
-
-```# Run examples
-
-cargo run --example basic_tactics
-
-### Buildingcargo run --example restructured_demo
-
-
-
-```bash# Build for release
-
-# Development buildcargo build --release
-
-cargo build
-
-# Python
-
-# Release buildpip install chess-engine-rust
-
-cargo build --release
-
-# JavaScript/Node.js
-
-# Cross-compilation (if targets are installed)npm install chess-engine-rust
-
-cargo build --target=x86_64-apple-darwin
-
-cargo build --target=aarch64-apple-darwin# Java/Gradle
-
-```implementation 'com.chess:engine-rust:0.1.0'
-
-```
-
-### Testing
+---
 
 ## Project Structure
 
-The project includes comprehensive tests:
-
-- 82+ unit tests for core functionality
-
-- 33 regression tests for FEN parsing and evaluationchess-engine/
-
-- Integration tests for engine API├── chess-engine-core/     # Core chess engine implementation
-
-- Cross-platform compilation tests├── chess-engine/          # High-level API with manager pattern
-
-- JNI├── chess-engine-jni/      # JNI bindings for Java/Kotlin
-
-- Run the full test suite:├── chess-engine-ffi/      # C FFI and WASM bindings
-
-```bash├── chess-engine-bench/    # Performance benchmarking suite
-
-./comprehensive_test.sh├── java/                  # Java wrapper library and Gradle build
-
-```└── examples/              # Usage examples for different platforms
-
+```
+crates/
+├── chess-core/         # Core chess logic and evaluation
+├── chess-engine/       # High-level engine API
+├── chess-engine-ffi/   # C FFI bindings
+└── chess-engine-jni/   # Java JNI bindings
 ```
 
-## Architecture
+### Development
+
+```bash
+# Run tests
+cargo test --workspace
+
+# Run examples
+cargo run --example basic_tactics
+cargo run --example restructured_demo
+
+# Build for release
+cargo build --release
+
+# Python
+pip install chess-engine-rust
+
+# JavaScript/Node.js
+npm install chess-engine-rust
+
+# Java/Gradle
+implementation 'com.chess:engine-rust:0.1.0'
+```
+
+## Project Structure
+
+```
+chess-engine/
+├── chess-engine-core/     # Core chess engine implementation
+├── chess-engine/          # High-level API with manager pattern
+├── chess-engine-jni/      # JNI bindings for Java/Kotlin
+├── chess-engine-ffi/      # C FFI and WASM bindings
+├── chess-engine-bench/    # Performance benchmarking suite
+├── java/                  # Java wrapper library and Gradle build
+└── examples/              # Usage examples for different platforms
+```
 
 ## Quick Start
 
-The engine uses a multi-crate architecture:
-
 ## 💻 Platform Examples
 
-- **chess-core**: Core chess logic, board representation, move generation, and evaluation
+### 🦀 **Rust** (Native Performance)
 
-- **chess-engine**: High-level API and engine interface### 🦀 **Rust** (Native Performance)
-
-- **chess-engine-ffi**: C FFI bindings for integration with other languages
-
-- **chess-engine-jni**: Java JNI bindings for Android/JVM integration```rust
-
+```rust
 use chess_engine::{ChessEngineBuilder, Color};
 
-## License
-
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.    // Tournament-strength configuration
+    // Tournament-strength configuration
     let mut engine = ChessEngineBuilder::new()
         .with_depth(8)                    // 8-ply deep search
         .with_time_limit(5000)           // 5 second time limit

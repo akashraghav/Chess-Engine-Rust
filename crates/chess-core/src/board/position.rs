@@ -185,101 +185,77 @@ impl Position {
 
     // Additional methods needed by game_state.rs and evaluation.rs
     pub fn from_fen(fen: &str) -> Result<Self> {
-        // This is a minimal FEN parser stub for testing
-        // For the check detection test, we need to place pieces based on the FEN
-
         let parts: Vec<&str> = fen.split_whitespace().collect();
+        if parts.is_empty() {
+            return Err(ChessError::ParseError("Empty FEN string".to_string()));
+        }
+        
         let board_fen = parts[0];
-
         let mut position = Position::new();
-
-        // For the test FEN "rnb1kbnr/pppp1ppp/4p3/8/6Pq/5P2/PPPPP2P/RNBQKBNR w"
-        // We need at least: White king on e1, Black queen on h4 to create check
-        if board_fen.contains("6Pq") {
-            // Test pattern detection
-            // Place White king at e1 (index 4)
-            position.place_piece(
-                Square::new(4).unwrap(),
-                Piece::new(PieceType::King, Color::White),
-            );
-            // Place Black queen at h4 (index 31) to attack the king
-            position.place_piece(
-                Square::new(31).unwrap(),
-                Piece::new(PieceType::Queen, Color::Black),
-            );
-
-            // Set side to move based on second part
-            if parts.len() > 1 && parts[1] == "w" {
-                position.side_to_move = Color::White;
-            } else if parts.len() > 1 && parts[1] == "b" {
-                position.side_to_move = Color::Black;
+        
+        // Parse board position
+        let ranks: Vec<&str> = board_fen.split('/').collect();
+        if ranks.len() != 8 {
+            return Err(ChessError::ParseError("FEN must have 8 ranks".to_string()));
+        }
+        
+        for (rank_idx, rank_str) in ranks.iter().enumerate() {
+            let mut file_idx = 0;
+            
+            for ch in rank_str.chars() {
+                if file_idx >= 8 {
+                    return Err(ChessError::ParseError("Too many files in rank".to_string()));
+                }
+                
+                if ch.is_ascii_digit() {
+                    // Empty squares
+                    let empty_count = ch.to_digit(10).unwrap() as usize;
+                    if file_idx + empty_count > 8 {
+                        return Err(ChessError::ParseError("Invalid empty square count".to_string()));
+                    }
+                    file_idx += empty_count;
+                } else {
+                    // Piece
+                    let color = if ch.is_uppercase() { Color::White } else { Color::Black };
+                    let piece_type = match ch.to_ascii_lowercase() {
+                        'p' => PieceType::Pawn,
+                        'n' => PieceType::Knight,
+                        'b' => PieceType::Bishop,
+                        'r' => PieceType::Rook,
+                        'q' => PieceType::Queen,
+                        'k' => PieceType::King,
+                        _ => return Err(ChessError::ParseError(format!("Invalid piece character: {}", ch))),
+                    };
+                    
+                    // Convert rank/file to square index (0-63)
+                    // rank_idx=0 is rank 8, file_idx=0 is file a
+                    let square_idx = (7 - rank_idx) * 8 + file_idx;
+                    let square = Square::new(square_idx as u8)
+                        .ok_or_else(|| ChessError::ParseError(format!("Invalid square index: {}", square_idx)))?;
+                    
+                    position.place_piece(square, Piece::new(piece_type, color));
+                    file_idx += 1;
+                }
             }
-        } else if board_fen.contains("RNBQKBN1") {
-            // Checkmate test pattern
-            // Place White king at e1 (index 4) - trapped
-            position.place_piece(
-                Square::new(4).unwrap(),
-                Piece::new(PieceType::King, Color::White),
-            );
-            // Place Black queen at h4 (index 31) for checkmate
-            position.place_piece(
-                Square::new(31).unwrap(),
-                Piece::new(PieceType::Queen, Color::Black),
-            );
-
-            if parts.len() > 1 && parts[1] == "w" {
-                position.side_to_move = Color::White;
-            } else if parts.len() > 1 && parts[1] == "b" {
-                position.side_to_move = Color::Black;
-            }
-        } else if board_fen == "8/8/8/8/8/8/8/K6k" {
-            // King-only endgame position
-            // Place White king at a1 (index 0)
-            position.place_piece(
-                Square::new(0).unwrap(),
-                Piece::new(PieceType::King, Color::White),
-            );
-            // Place Black king at h1 (index 7)
-            position.place_piece(
-                Square::new(7).unwrap(),
-                Piece::new(PieceType::King, Color::Black),
-            );
-
-            if parts.len() > 1 && parts[1] == "w" {
-                position.side_to_move = Color::White;
-            } else if parts.len() > 1 && parts[1] == "b" {
-                position.side_to_move = Color::Black;
-            }
-        } else if board_fen == "k7/P7/K7/8/8/8/8/8" {
-            // Stalemate position
-            // Black king on a8 (index 56)
-            position.place_piece(
-                Square::new(56).unwrap(),
-                Piece::new(PieceType::King, Color::Black),
-            );
-            // White pawn on a7 (index 48)
-            position.place_piece(
-                Square::new(48).unwrap(),
-                Piece::new(PieceType::Pawn, Color::White),
-            );
-            // White king on a6 (index 40)
-            position.place_piece(
-                Square::new(40).unwrap(),
-                Piece::new(PieceType::King, Color::White),
-            );
-
-            if parts.len() > 1 && parts[1] == "w" {
-                position.side_to_move = Color::White;
-            } else if parts.len() > 1 && parts[1] == "b" {
-                position.side_to_move = Color::Black;
-            }
-        } else {
-            // Default starting position for other tests
-            position = Position::starting_position();
-            if parts.len() > 1 && parts[1] == "b" {
-                position.side_to_move = Color::Black;
+            
+            if file_idx != 8 {
+                return Err(ChessError::ParseError("Rank doesn't have 8 files".to_string()));
             }
         }
+        
+        // Parse side to move
+        if parts.len() > 1 {
+            position.side_to_move = match parts[1] {
+                "w" => Color::White,
+                "b" => Color::Black,
+                _ => return Err(ChessError::ParseError("Invalid side to move".to_string())),
+            };
+        } else {
+            position.side_to_move = Color::White;
+        }
+        
+        // Update bitboards after placing all pieces
+        position.update_bitboards();
 
         Ok(position)
     }

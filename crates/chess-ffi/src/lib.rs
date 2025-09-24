@@ -21,7 +21,7 @@ fn get_engines() -> &'static Arc<Mutex<HashMap<EngineId, ChessEngine>>> {
 }
 
 fn get_next_id() -> EngineId {
-    ENGINE_COUNTER.fetch_add(1, Ordering::Relaxed) + 1
+    (ENGINE_COUNTER.fetch_add(1, Ordering::Relaxed) + 1) as EngineId
 }
 
 // C FFI Functions
@@ -476,7 +476,7 @@ mod python {
         #[staticmethod]
         fn from_fen(fen: &str) -> PyResult<PyChessEngine> {
             let fen_cstr = CString::new(fen)?;
-            let engine_id = chess_engine_create_from_fen(fen_cstr.as_ptr());
+            let engine_id = unsafe { chess_engine_create_from_fen(fen_cstr.as_ptr()) };
             if engine_id != -1 {
                 chess_engine_initialize(engine_id);
                 Ok(PyChessEngine { engine_id })
@@ -489,7 +489,7 @@ mod python {
             let fen_ptr = chess_engine_get_fen(self.engine_id);
             if !fen_ptr.is_null() {
                 let fen = unsafe { CStr::from_ptr(fen_ptr).to_string_lossy().into_owned() };
-                chess_engine_free_string(fen_ptr);
+                unsafe { chess_engine_free_string(fen_ptr) };
                 fen
             } else {
                 String::new()
@@ -498,7 +498,7 @@ mod python {
 
         fn load_fen(&mut self, fen: &str) -> PyResult<bool> {
             let fen_cstr = CString::new(fen)?;
-            Ok(chess_engine_load_fen(self.engine_id, fen_cstr.as_ptr()) == 1)
+            Ok(unsafe { chess_engine_load_fen(self.engine_id, fen_cstr.as_ptr()) } == 1)
         }
 
         fn get_side_to_move(&self) -> i32 {
@@ -507,12 +507,12 @@ mod python {
 
         fn make_move(&mut self, uci_move: &str) -> PyResult<bool> {
             let move_cstr = CString::new(uci_move)?;
-            Ok(chess_engine_make_move(self.engine_id, move_cstr.as_ptr()) == 1)
+            Ok(unsafe { chess_engine_make_move(self.engine_id, move_cstr.as_ptr()) } == 1)
         }
 
         fn is_legal_move(&self, uci_move: &str) -> PyResult<bool> {
             let move_cstr = CString::new(uci_move)?;
-            Ok(chess_engine_is_legal_move(self.engine_id, move_cstr.as_ptr()) == 1)
+            Ok(unsafe { chess_engine_is_legal_move(self.engine_id, move_cstr.as_ptr()) } == 1)
         }
 
         fn get_legal_moves_count(&self) -> i32 {
@@ -543,7 +543,7 @@ mod python {
             let move_ptr = chess_engine_find_best_move(self.engine_id);
             if !move_ptr.is_null() {
                 let best_move = unsafe { CStr::from_ptr(move_ptr).to_string_lossy().into_owned() };
-                chess_engine_free_string(move_ptr);
+                unsafe { chess_engine_free_string(move_ptr) };
                 Some(best_move)
             } else {
                 None
@@ -558,7 +558,7 @@ mod python {
     }
 
     #[pymodule]
-    fn chess_engine(_py: Python, m: &PyModule) -> PyResult<()> {
+    fn chess_engine(m: &Bound<'_, PyModule>) -> PyResult<()> {
         m.add_class::<PyChessEngine>()?;
         Ok(())
     }
