@@ -115,8 +115,10 @@ fn display_game_info(engine: &chess_engine::ChessEngine) {
 
     // Show some legal moves
     if !info.legal_moves.is_empty() {
-        println!("Some legal moves: {}",
-            info.legal_moves.iter()
+        println!(
+            "Some legal moves: {}",
+            info.legal_moves
+                .iter()
                 .take(8)
                 .map(|m| m.to_string())
                 .collect::<Vec<_>>()

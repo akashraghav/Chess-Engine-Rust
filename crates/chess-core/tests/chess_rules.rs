@@ -541,4 +541,22 @@ mod performance_tests {
             positions_per_second
         );
     }
+
+    #[test]
+    fn test_perft_starting_position() {
+        let game_state = GameState::new();
+
+        // Perft test for starting position at depth 1
+        let moves = game_state.generate_legal_moves();
+        assert_eq!(
+            moves.len(),
+            20,
+            "Starting position should have exactly 20 legal moves"
+        );
+
+        println!(
+            "✅ Perft test passed: {} moves from starting position",
+            moves.len()
+        );
+    }
 }

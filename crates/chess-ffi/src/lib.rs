@@ -9,7 +9,7 @@ use std::sync::{
     Arc, Mutex, OnceLock,
 };
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", feature = "wasm"))]
 use wasm_bindgen::prelude::*;
 
 type EngineId = c_long;
@@ -326,7 +326,7 @@ pub unsafe extern "C" fn chess_engine_free_string(s: *mut c_char) {
 }
 
 // WASM Bindings
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", feature = "wasm"))]
 mod wasm {
     use super::*;
 
@@ -347,7 +347,7 @@ mod wasm {
         #[wasm_bindgen]
         pub fn from_fen(fen: &str) -> Option<WasmChessEngine> {
             let fen_cstr = CString::new(fen).ok()?;
-            let engine_id = chess_engine_create_from_fen(fen_cstr.as_ptr());
+            let engine_id = unsafe { chess_engine_create_from_fen(fen_cstr.as_ptr()) };
             if engine_id != -1 {
                 chess_engine_initialize(engine_id);
                 Some(WasmChessEngine { engine_id })
@@ -361,7 +361,7 @@ mod wasm {
             let fen_ptr = chess_engine_get_fen(self.engine_id);
             if !fen_ptr.is_null() {
                 let fen = unsafe { CStr::from_ptr(fen_ptr).to_string_lossy().into_owned() };
-                chess_engine_free_string(fen_ptr);
+                unsafe { chess_engine_free_string(fen_ptr) };
                 fen
             } else {
                 String::new()
@@ -371,7 +371,7 @@ mod wasm {
         #[wasm_bindgen]
         pub fn load_fen(&mut self, fen: &str) -> bool {
             if let Ok(fen_cstr) = CString::new(fen) {
-                chess_engine_load_fen(self.engine_id, fen_cstr.as_ptr()) == 1
+                unsafe { chess_engine_load_fen(self.engine_id, fen_cstr.as_ptr()) == 1 }
             } else {
                 false
             }
@@ -385,7 +385,7 @@ mod wasm {
         #[wasm_bindgen]
         pub fn make_move(&mut self, uci_move: &str) -> bool {
             if let Ok(move_cstr) = CString::new(uci_move) {
-                chess_engine_make_move(self.engine_id, move_cstr.as_ptr()) == 1
+                unsafe { chess_engine_make_move(self.engine_id, move_cstr.as_ptr()) == 1 }
             } else {
                 false
             }
@@ -394,7 +394,7 @@ mod wasm {
         #[wasm_bindgen]
         pub fn is_legal_move(&self, uci_move: &str) -> bool {
             if let Ok(move_cstr) = CString::new(uci_move) {
-                chess_engine_is_legal_move(self.engine_id, move_cstr.as_ptr()) == 1
+                unsafe { chess_engine_is_legal_move(self.engine_id, move_cstr.as_ptr()) == 1 }
             } else {
                 false
             }
@@ -435,7 +435,7 @@ mod wasm {
             let move_ptr = chess_engine_find_best_move(self.engine_id);
             if !move_ptr.is_null() {
                 let best_move = unsafe { CStr::from_ptr(move_ptr).to_string_lossy().into_owned() };
-                chess_engine_free_string(move_ptr);
+                unsafe { chess_engine_free_string(move_ptr) };
                 Some(best_move)
             } else {
                 None
@@ -450,7 +450,7 @@ mod wasm {
     }
 }
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", feature = "wasm"))]
 pub use wasm::*;
 
 // Python bindings using PyO3

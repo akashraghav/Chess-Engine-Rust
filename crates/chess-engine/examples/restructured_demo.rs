@@ -28,7 +28,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("\n🎉 Restructured chess engine working perfectly!");
     println!("📚 Clean modular architecture with proper separation of concerns");
-    println!("⚡ All {} legal moves generated efficiently", legal_moves.len());
+    println!(
+        "⚡ All {} legal moves generated efficiently",
+        legal_moves.len()
+    );
 
     Ok(())
 }

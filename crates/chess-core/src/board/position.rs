@@ -189,34 +189,40 @@ impl Position {
         if parts.is_empty() {
             return Err(ChessError::ParseError("Empty FEN string".to_string()));
         }
-        
+
         let board_fen = parts[0];
         let mut position = Position::new();
-        
+
         // Parse board position
         let ranks: Vec<&str> = board_fen.split('/').collect();
         if ranks.len() != 8 {
             return Err(ChessError::ParseError("FEN must have 8 ranks".to_string()));
         }
-        
+
         for (rank_idx, rank_str) in ranks.iter().enumerate() {
             let mut file_idx = 0;
-            
+
             for ch in rank_str.chars() {
                 if file_idx >= 8 {
                     return Err(ChessError::ParseError("Too many files in rank".to_string()));
                 }
-                
+
                 if ch.is_ascii_digit() {
                     // Empty squares
                     let empty_count = ch.to_digit(10).unwrap() as usize;
                     if file_idx + empty_count > 8 {
-                        return Err(ChessError::ParseError("Invalid empty square count".to_string()));
+                        return Err(ChessError::ParseError(
+                            "Invalid empty square count".to_string(),
+                        ));
                     }
                     file_idx += empty_count;
                 } else {
                     // Piece
-                    let color = if ch.is_uppercase() { Color::White } else { Color::Black };
+                    let color = if ch.is_uppercase() {
+                        Color::White
+                    } else {
+                        Color::Black
+                    };
                     let piece_type = match ch.to_ascii_lowercase() {
                         'p' => PieceType::Pawn,
                         'n' => PieceType::Knight,
@@ -224,25 +230,33 @@ impl Position {
                         'r' => PieceType::Rook,
                         'q' => PieceType::Queen,
                         'k' => PieceType::King,
-                        _ => return Err(ChessError::ParseError(format!("Invalid piece character: {}", ch))),
+                        _ => {
+                            return Err(ChessError::ParseError(format!(
+                                "Invalid piece character: {}",
+                                ch
+                            )))
+                        }
                     };
-                    
+
                     // Convert rank/file to square index (0-63)
                     // rank_idx=0 is rank 8, file_idx=0 is file a
                     let square_idx = (7 - rank_idx) * 8 + file_idx;
-                    let square = Square::new(square_idx as u8)
-                        .ok_or_else(|| ChessError::ParseError(format!("Invalid square index: {}", square_idx)))?;
-                    
+                    let square = Square::new(square_idx as u8).ok_or_else(|| {
+                        ChessError::ParseError(format!("Invalid square index: {}", square_idx))
+                    })?;
+
                     position.place_piece(square, Piece::new(piece_type, color));
                     file_idx += 1;
                 }
             }
-            
+
             if file_idx != 8 {
-                return Err(ChessError::ParseError("Rank doesn't have 8 files".to_string()));
+                return Err(ChessError::ParseError(
+                    "Rank doesn't have 8 files".to_string(),
+                ));
             }
         }
-        
+
         // Parse side to move
         if parts.len() > 1 {
             position.side_to_move = match parts[1] {
@@ -253,7 +267,7 @@ impl Position {
         } else {
             position.side_to_move = Color::White;
         }
-        
+
         // Update bitboards after placing all pieces
         position.update_bitboards();
 
