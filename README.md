@@ -1,10 +1,8 @@
 # 🏆 Chess Engine Rust
 
-[![Crates.io](https://img.shields.io/crates/v/chess-engine-rust.svg)](https://crates.io/crates/chess-engine-rust)
-[![Documentation](https://docs.rs/chess-engine-rust/badge.svg)](https://docs.rs/chess-engine-rust)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
-[![Build Status](https://img.shields.io/github/workflow/status/username/chess-engine-rust/CI)](https://github.com/username/chess-engine-rust/actions)
-[![Coverage](https://img.shields.io/codecov/c/github/username/chess-engine-rust)](https://codecov.io/gh/username/chess-engine-rust)
+[![Rust](https://img.shields.io/badge/rust-1.75%2B-orange.svg)](https://www.rust-lang.org/)
+[![Platform](https://img.shields.io/badge/platform-cross--platform-green.svg)](#-platform-support)
 
 A **high-performance, tournament-grade chess engine** implemented in Rust with world-class architecture and 100% test coverage. This engine follows international chess standards (FIDE) and provides cross-platform bindings for multiple languages.
 
