@@ -179,6 +179,8 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y gcc-aarch64-linux-gnu
+        export CC_aarch64_unknown_linux_gnu=aarch64-linux-gnu-gcc
+        export CXX_aarch64_unknown_linux_gnu=aarch64-linux-gnu-g++
 
     - name: 📦 Cache Cargo dependencies
       uses: actions/cache@v3
@@ -192,7 +194,17 @@ jobs:
         key: ${{ runner.os }}-${{ matrix.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
     - name: 🏗️ Build for ${{ matrix.name }}
-      run: cargo build --release --target ${{ matrix.target }}
+      env:
+        CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
+        CXX_aarch64_unknown_linux_gnu: aarch64-linux-gnu-g++
+      run: |
+        if [ "${{ matrix.target }}" = "aarch64-unknown-linux-gnu" ]; then
+          # For ARM64 cross-compilation, only build essential packages
+          cargo build --release --target ${{ matrix.target }} --package chess-core --package chess-engine
+        else
+          # For native builds, build everything
+          cargo build --release --target ${{ matrix.target }}
+        fi
 
     - name: 📦 Archive build artifacts
       if: matrix.os != 'ubuntu-latest' || matrix.target == 'x86_64-unknown-linux-gnu'

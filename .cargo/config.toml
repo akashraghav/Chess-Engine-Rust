@@ -1,0 +1,31 @@
+# Cross-compilation configuration for the chess engine
+
+[target.aarch64-unknown-linux-gnu]
+linker = "aarch64-linux-gnu-gcc"
+
+[target.x86_64-pc-windows-msvc]
+# Windows target configuration - uses default linker
+
+[target.x86_64-apple-darwin]
+# macOS Intel target configuration - uses default linker
+
+[target.aarch64-apple-darwin]
+# macOS Apple Silicon target configuration - uses default linker
+
+# Build settings
+[build]
+# Enable faster builds in development
+target-dir = "target"
+
+# Optimization settings for release builds
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+# Development profile with faster compilation
+[profile.dev]
+opt-level = 0
+debug = true
