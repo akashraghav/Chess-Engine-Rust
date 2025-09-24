@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# Universal CI script - choose what to run
+# Usage: ./scripts/ci [command]
+
+case "$1" in
+    "quick"|"q")
+        echo "🚀 Running quick CI check..."
+        ./scripts/quick-check.sh
+        ;;
+    "full"|"f")
+        echo "🚀 Running full CI simulation..."
+        ./scripts/run-ci-locally.sh
+        ;;
+    "test"|"t")
+        echo "🧪 Running comprehensive tests..."
+        ./scripts/test-all.sh "${@:2}"
+        ;;
+    "bench"|"b")
+        echo "⚡ Running benchmarks..."
+        ./scripts/run-benchmarks.sh "${@:2}"
+        ;;
+    "coverage"|"c")
+        echo "📊 Running tests with coverage..."
+        ./scripts/test-all.sh --coverage
+        ;;
+    "fix")
+        echo "🔧 Auto-fixing common issues..."
+        echo "Formatting code..."
+        cargo fmt --all
+        echo "Applying clippy suggestions..."
+        cargo clippy --fix --all-targets --all-features --allow-dirty
+        echo "Done! Run './scripts/ci quick' to verify fixes."
+        ;;
+    "help"|"h"|"")
+        echo "🚀 Chess Engine CI Helper"
+        echo ""
+        echo "Usage: ./scripts/ci <command>"
+        echo ""
+        echo "Commands:"
+        echo "  quick, q           🚀 Quick essential checks"
+        echo "  full, f            🚀 Complete CI simulation"
+        echo "  test, t [--coverage] 🧪 Run all tests"
+        echo "  bench, b [--save-results] ⚡ Run benchmarks"
+        echo "  coverage, c        📊 Tests with coverage report"
+        echo "  fix                🔧 Auto-fix formatting and clippy issues"
+        echo "  help, h            📚 Show this help"
+        echo ""
+        echo "Examples:"
+        echo "  ./scripts/ci quick              # Before commit"
+        echo "  ./scripts/ci full               # Before push"
+        echo "  ./scripts/ci test --coverage    # Full testing"
+        echo "  ./scripts/ci bench --save-results  # Benchmark"
+        echo "  ./scripts/ci fix                # Fix issues"
+        echo ""
+        ;;
+    *)
+        echo "❌ Unknown command: $1"
+        echo "Run './scripts/ci help' for available commands"
+        exit 1
+        ;;
+esac
