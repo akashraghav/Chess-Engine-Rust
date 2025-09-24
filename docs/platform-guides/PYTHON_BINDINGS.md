@@ -1144,7 +1144,7 @@ setup(
     description="Advanced chess application powered by Rust engine",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/my-chess-app",
+    url="https://github.com/YOUR_USERNAME/my-chess-app",  # Replace with your actual GitHub username
     packages=find_packages(),
 
     install_requires=[
@@ -1192,17 +1192,17 @@ setup(
 
 ### Documentation and Learning
 
-- 📖 **Chess Engine API**: [Full Python API documentation](https://chess-engine-rust.readthedocs.io/python/)
+- 📖 **Chess Engine API**: Refer to the inline documentation and `docs/` directory for API details
 - 🧠 **Chess Programming**: [Chess Programming Wiki](https://www.chessprogramming.org/)
 - 🐍 **Python-Rust Integration**: [PyO3 Guide](https://pyo3.rs/)
 - 📊 **Machine Learning in Chess**: [Chess AI Research Papers](https://github.com/topics/chess-ai)
 
 ### Community and Support
 
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/username/chess-engine-rust/discussions)
-- 🐛 **Issues**: [Report Bugs](https://github.com/username/chess-engine-rust/issues)
-- 📧 **Email**: support@chess-engine-rust.com
-- 🔗 **Discord**: [Chess Engine Community](https://discord.gg/chess-engine-rust)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/akashraghav/Chess-Engine-Rust/discussions)
+- 🐛 **Issues**: [Report Bugs](https://github.com/akashraghav/Chess-Engine-Rust/issues)
+- 📧 **Community**: Use GitHub Discussions for questions
+- 🔗 **Discord**: Community chat available through GitHub Discussions
 
 ---
 

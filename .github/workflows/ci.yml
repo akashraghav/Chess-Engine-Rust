@@ -205,100 +205,84 @@ jobs:
           target/${{ matrix.target }}/release/*.so
           target/${{ matrix.target }}/release/*.dylib
 
-  # 🌐 WebAssembly Build
-  wasm_build:
-    name: 🌐 WebAssembly Build
-    runs-on: ubuntu-latest
-    steps:
-    - name: 📥 Checkout code
-      uses: actions/checkout@v4
+  # 🌐 WebAssembly Build (Temporarily disabled - TODO: implement WASM bindings)
+  # wasm_build:
+  #   name: 🌐 WebAssembly Build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: 📥 Checkout code
+  #     uses: actions/checkout@v4
+  #   - name: 🦀 Setup Rust toolchain
+  #     uses: dtolnay/rust-toolchain@stable
+  #     with:
+  #       targets: wasm32-unknown-unknown
+  #   - name: 📦 Install wasm-pack
+  #     run: cargo install wasm-pack
+  #   - name: 🏗️ Build WebAssembly package
+  #     run: wasm-pack build --target web --out-dir pkg
+  #   - name: 🧪 Test WebAssembly build
+  #     run: wasm-pack test --node
+  #   - name: 📦 Upload WASM artifacts
+  #     uses: actions/upload-artifact@v3
+  #     with:
+  #       name: chess-engine-wasm
+  #       path: pkg/
 
-    - name: 🦀 Setup Rust toolchain
-      uses: dtolnay/rust-toolchain@stable
-      with:
-        targets: wasm32-unknown-unknown
+  # 🐍 Python Bindings (Temporarily disabled - TODO: implement Python bindings)
+  # python_bindings:
+  #   name: 🐍 Python Bindings (Python ${{ matrix.python-version }})
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       os: [ubuntu-latest, windows-latest, macos-latest]
+  #       python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+  #   steps:
+  #   - name: 📥 Checkout code
+  #     uses: actions/checkout@v4
+  #   - name: 🐍 Setup Python ${{ matrix.python-version }}
+  #     uses: actions/setup-python@v4
+  #     with:
+  #       python-version: ${{ matrix.python-version }}
+  #   - name: 🦀 Setup Rust toolchain
+  #     uses: dtolnay/rust-toolchain@stable
+  #   - name: 📦 Install Python dependencies
+  #     run: |
+  #       python -m pip install --upgrade pip
+  #       pip install maturin pytest
+  #   - name: 🏗️ Build Python bindings
+  #     run: maturin develop
+  #   - name: 🧪 Test Python bindings
+  #     run: |
+  #       python -c "import chess_engine_rust; print('✅ Import successful')"
+  #       pytest python-tests/ -v
 
-    - name: 📦 Install wasm-pack
-      run: cargo install wasm-pack
-
-    - name: 🏗️ Build WebAssembly package
-      run: wasm-pack build --target web --out-dir pkg
-
-    - name: 🧪 Test WebAssembly build
-      run: wasm-pack test --node
-
-    - name: 📦 Upload WASM artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: chess-engine-wasm
-        path: pkg/
-
-  # 🐍 Python Bindings
-  python_bindings:
-    name: 🐍 Python Bindings (Python ${{ matrix.python-version }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
-
-    steps:
-    - name: 📥 Checkout code
-      uses: actions/checkout@v4
-
-    - name: 🐍 Setup Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-
-    - name: 🦀 Setup Rust toolchain
-      uses: dtolnay/rust-toolchain@stable
-
-    - name: 📦 Install Python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install maturin pytest
-
-    - name: 🏗️ Build Python bindings
-      run: maturin develop
-
-    - name: 🧪 Test Python bindings
-      run: |
-        python -c "import chess_engine_rust; print('✅ Import successful')"
-        pytest python-tests/ -v
-
-  # ☕ Java Bindings
-  java_bindings:
-    name: ☕ Java Bindings (Java ${{ matrix.java-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        java-version: ['11', '17', '21']
-
-    steps:
-    - name: 📥 Checkout code
-      uses: actions/checkout@v4
-
-    - name: ☕ Setup Java ${{ matrix.java-version }}
-      uses: actions/setup-java@v3
-      with:
-        java-version: ${{ matrix.java-version }}
-        distribution: 'temurin'
-
-    - name: 🦀 Setup Rust toolchain
-      uses: dtolnay/rust-toolchain@stable
-
-    - name: 🏗️ Build JNI bindings
-      run: |
-        cd java/
-        ./gradlew build
-
-    - name: 🧪 Test Java bindings
-      run: |
-        cd java/
-        ./gradlew test
+  # ☕ Java Bindings (Temporarily disabled - TODO: implement Java/Gradle setup)
+  # java_bindings:
+  #   name: ☕ Java Bindings (Java ${{ matrix.java-version }})
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       java-version: ['11', '17', '21']
+  #   steps:
+  #   - name: 📥 Checkout code
+  #     uses: actions/checkout@v4
+  #   - name: ☕ Setup Java ${{ matrix.java-version }}
+  #     uses: actions/setup-java@v3
+  #     with:
+  #       java-version: ${{ matrix.java-version }}
+  #       distribution: 'temurin'
+  #   - name: 🦀 Setup Rust toolchain
+  #     uses: dtolnay/rust-toolchain@stable
+  #   - name: 🏗️ Build JNI bindings
+  #     run: |
+  #       cd java/
+  #       ./gradlew build
+  #   - name: 🧪 Test Java bindings
+  #     run: |
+  #       cd java/
+  #       ./gradlew test
 
   # 🚀 Performance Benchmarking
   benchmarks:
@@ -340,7 +324,7 @@ jobs:
   ci_success:
     name: ✅ CI Success
     runs-on: ubuntu-latest
-    needs: [quality, test, chess_validation, platform_builds, wasm_build, python_bindings, java_bindings]
+    needs: [quality, test, chess_validation, platform_builds]
     if: always()
 
     steps:

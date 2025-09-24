@@ -1428,7 +1428,7 @@ android {
 
 ## 📚 Resources
 
-- **📖 Android Chess Engine API**: [Full Android API Documentation](https://chess-engine-rust.readthedocs.io/android/)
+- **📖 Android Chess Engine API**: Refer to the JNI documentation and Android examples in this repository
 - **🎨 Material Design**: [Material Design Guidelines](https://material.io/design)
 - **⚡ Android Performance**: [Android Performance Best Practices](https://developer.android.com/topic/performance)
 - **🔋 Battery Optimization**: [Android Battery Optimization](https://developer.android.com/topic/performance/power)

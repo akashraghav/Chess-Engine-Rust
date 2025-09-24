@@ -39,17 +39,17 @@ pub extern "C" fn chess_engine_create() -> EngineId {
     id
 }
 
+/// # Safety
+/// The caller must ensure that `fen` points to a valid, null-terminated C string.
 #[no_mangle]
-pub extern "C" fn chess_engine_create_from_fen(fen: *const c_char) -> EngineId {
+pub unsafe extern "C" fn chess_engine_create_from_fen(fen: *const c_char) -> EngineId {
     if fen.is_null() {
         return -1;
     }
 
-    let fen_str = unsafe {
-        match CStr::from_ptr(fen).to_str() {
-            Ok(s) => s,
-            Err(_) => return -1,
-        }
+    let fen_str = match CStr::from_ptr(fen).to_str() {
+        Ok(s) => s,
+        Err(_) => return -1,
     };
 
     match ChessEngine::from_fen(fen_str) {
@@ -102,17 +102,17 @@ pub extern "C" fn chess_engine_get_fen(engine_id: EngineId) -> *mut c_char {
     std::ptr::null_mut()
 }
 
+/// # Safety
+/// The caller must ensure that `fen` points to a valid, null-terminated C string.
 #[no_mangle]
-pub extern "C" fn chess_engine_load_fen(engine_id: EngineId, fen: *const c_char) -> c_int {
+pub unsafe extern "C" fn chess_engine_load_fen(engine_id: EngineId, fen: *const c_char) -> c_int {
     if fen.is_null() {
         return 0;
     }
 
-    let fen_str = unsafe {
-        match CStr::from_ptr(fen).to_str() {
-            Ok(s) => s,
-            Err(_) => return 0,
-        }
+    let fen_str = match CStr::from_ptr(fen).to_str() {
+        Ok(s) => s,
+        Err(_) => return 0,
     };
 
     let engines = get_engines();
@@ -141,17 +141,20 @@ pub extern "C" fn chess_engine_get_side_to_move(engine_id: EngineId) -> c_int {
     -1
 }
 
+/// # Safety
+/// The caller must ensure that `uci_move` points to a valid, null-terminated C string.
 #[no_mangle]
-pub extern "C" fn chess_engine_make_move(engine_id: EngineId, uci_move: *const c_char) -> c_int {
+pub unsafe extern "C" fn chess_engine_make_move(
+    engine_id: EngineId,
+    uci_move: *const c_char,
+) -> c_int {
     if uci_move.is_null() {
         return 0;
     }
 
-    let uci_str = unsafe {
-        match CStr::from_ptr(uci_move).to_str() {
-            Ok(s) => s,
-            Err(_) => return 0,
-        }
+    let uci_str = match CStr::from_ptr(uci_move).to_str() {
+        Ok(s) => s,
+        Err(_) => return 0,
     };
 
     let engines = get_engines();
@@ -172,8 +175,10 @@ pub extern "C" fn chess_engine_make_move(engine_id: EngineId, uci_move: *const c
     0
 }
 
+/// # Safety
+/// The caller must ensure that `uci_move` points to a valid, null-terminated C string.
 #[no_mangle]
-pub extern "C" fn chess_engine_is_legal_move(
+pub unsafe extern "C" fn chess_engine_is_legal_move(
     engine_id: EngineId,
     uci_move: *const c_char,
 ) -> c_int {
@@ -181,11 +186,9 @@ pub extern "C" fn chess_engine_is_legal_move(
         return 0;
     }
 
-    let uci_str = unsafe {
-        match CStr::from_ptr(uci_move).to_str() {
-            Ok(s) => s,
-            Err(_) => return 0,
-        }
+    let uci_str = match CStr::from_ptr(uci_move).to_str() {
+        Ok(s) => s,
+        Err(_) => return 0,
     };
 
     let engines = get_engines();
@@ -313,12 +316,12 @@ pub extern "C" fn chess_engine_find_best_move(engine_id: EngineId) -> *mut c_cha
     std::ptr::null_mut()
 }
 
+/// # Safety
+/// The caller must ensure that `s` was allocated by this library and is not used after this call.
 #[no_mangle]
-pub extern "C" fn chess_engine_free_string(s: *mut c_char) {
+pub unsafe extern "C" fn chess_engine_free_string(s: *mut c_char) {
     if !s.is_null() {
-        unsafe {
-            let _ = CString::from_raw(s);
-        }
+        let _ = CString::from_raw(s);
     }
 }
 

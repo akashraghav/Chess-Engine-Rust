@@ -626,7 +626,7 @@ This project is licensed under the MIT License, making it free to use, modify, a
 
 ## 🆘 Support & Community
 
-- 📖 **Documentation**: [docs.rs/chess-engine-rust](https://docs.rs/chess-engine-rust)
+- 📖 **Documentation**: Available in the [docs/](docs/) directory and inline code documentation
 - 🐛 **Bug Reports & Questions**: [GitHub Issues](https://github.com/akashraghav/Chess-Engine-Rust/issues)
 - 🔐 **Security Policy**: [Security Policy](https://github.com/akashraghav/Chess-Engine-Rust/security/policy)
 - 💡 **Feature Requests**: Use GitHub issues with the "enhancement" label

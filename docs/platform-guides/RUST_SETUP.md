@@ -521,11 +521,11 @@ fn analyze_pgn_game(pgn_file: &str) -> Result<(), Box<dyn std::error::Error>> {
 
 ## 📚 Additional Resources
 
-- **📖 API Documentation**: [docs.rs/chess-engine-rust](https://docs.rs/chess-engine-rust)
+- **📖 API Documentation**: Available in the source code and `docs/` directory
 - **🏗️ Architecture Guide**: [HOW-IT-WORKS.md](../../HOW-IT-WORKS.md)
 - **🤝 Contributing**: [CONTRIBUTING.md](../../CONTRIBUTING.md)
-- **💬 Community**: [GitHub Discussions](https://github.com/username/chess-engine-rust/discussions)
-- **🐛 Issues**: [GitHub Issues](https://github.com/username/chess-engine-rust/issues)
+- **💬 Community**: [GitHub Discussions](https://github.com/akashraghav/Chess-Engine-Rust/discussions)
+- **🐛 Issues**: [GitHub Issues](https://github.com/akashraghav/Chess-Engine-Rust/issues)
 
 ---
 

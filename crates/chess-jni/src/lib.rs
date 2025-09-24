@@ -29,7 +29,7 @@ fn string_to_jstring<'a>(env: JNIEnv<'a>, s: &str) -> jstring {
         .into_raw()
 }
 
-fn jstring_to_string<'a>(mut env: JNIEnv<'a>, jstr: JString<'a>) -> String {
+fn jstring_to_string<'a>(env: JNIEnv<'a>, jstr: JString<'a>) -> String {
     env.get_string(jstr).expect("Failed to get JString").into()
 }
 

@@ -795,9 +795,9 @@ github "chess-engine-team/chess-engine-swift" ~> 0.1.0
 - **Chess Puzzles**: Tactical puzzle solving with engine hints
 
 ### Sample Code Repositories
-- [iOS Chess Game Example](https://github.com/chess-engine-team/ios-example)
-- [SwiftUI Chess Board](https://github.com/chess-engine-team/swiftui-chess)
-- [Chess Analysis App](https://github.com/chess-engine-team/ios-analysis)
+- iOS Chess Game Example - Check the `examples/` directory for iOS implementation samples
+- SwiftUI Chess Board - Refer to the iOS platform documentation in this project
+- Chess Analysis App - See iOS integration examples in the main repository
 
 ---
 

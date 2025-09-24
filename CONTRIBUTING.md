@@ -172,7 +172,7 @@ Brief description of the issue.
 # Fork on GitHub, then:
 git clone https://github.com/YOUR_USERNAME/chess-engine-rust.git
 cd chess-engine-rust
-git remote add upstream https://github.com/original-owner/chess-engine-rust.git
+git remote add upstream https://github.com/akashraghav/Chess-Engine-Rust.git
 ```
 
 ### 2. 🌿 **Create Feature Branch**
@@ -689,7 +689,7 @@ For major features, consider adding:
 **📚 Resources:**
 - 🔗 [Chess Programming Wiki](https://www.chessprogramming.org/)
 - 📖 [Rust Book](https://doc.rust-lang.org/book/)
-- 🎥 [Chess Engine Video Tutorials](https://youtube.com/chess-engine-programming)
+- 🎥 Chess Engine Video Tutorials - Search YouTube for "chess engine programming tutorials"
 
 ---
 
