@@ -3,7 +3,7 @@
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 [![Rust](https://img.shields.io/badge/rust-1.75%2B-orange.svg)](https://www.rust-lang.org/)
 [![Platform](https://img.shields.io/badge/platform-cross--platform-green.svg)](#platform-support)
-[![Visits](https://hits.sh/akashraghav/Chess-Engine-Rust.svg?style=flat&label=visits&color=blue)](https://hits.sh/akashraghav/Chess-Engine-Rust/)
+![Visitors](https://visitor-badge.laobi.icu/badge?page_id=akashraghav.Chess-Engine-Rust)
 
 A **high-performance, tournament-grade chess engine** implemented in Rust with world-class architecture and 100% test coverage. This engine follows international chess standards (FIDE) and provides cross-platform bindings for multiple languages.
 
