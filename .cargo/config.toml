@@ -3,7 +3,7 @@
 # Build settings
 [build]
 # Parallel compilation for faster builds
-jobs = 0  # Use all available cores
+jobs = 4
 
 # Development profile with faster compilation and debugging
 [profile.dev]

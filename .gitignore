@@ -100,6 +100,7 @@ htmlcov/
 **/*.bench.log
 **/report/
 **/reports/
+**/benchmark-results
 
 # Gnuplot caches (Criterion optional)
 **/*.gp
