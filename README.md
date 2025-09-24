@@ -2,7 +2,8 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 [![Rust](https://img.shields.io/badge/rust-1.75%2B-orange.svg)](https://www.rust-lang.org/)
-[![Platform](https://img.shields.io/badge/platform-cross--platform-green.svg)](#-platform-support)
+[![Platform](https://img.shields.io/badge/platform-cross--platform-green.svg)](#platform-support)
+[![Visits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fakashraghav%2FChess-Engine-Rust&count_bg=%2379C83D&title_bg=%23555555&icon=github.svg&icon_color=%23E7E7E7&title=visits&edge_flat=false)](https://hits.seeyoufarm.com)
 
 A **high-performance, tournament-grade chess engine** implemented in Rust with world-class architecture and 100% test coverage. This engine follows international chess standards (FIDE) and provides cross-platform bindings for multiple languages.
 
@@ -74,7 +75,38 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 - **Game Management**: Full move history, undo/redo, position repetition detection
 - **Multiple Formats**: FEN/PGN support with comprehensive parsing
 
----\n\n## 📱 Platform Support\n\n<table>\n<tr>\n<td><strong>🦀 Rust</strong><br/>Native performance</td>\n<td><strong>🐍 Python</strong><br/>PyO3 bindings</td>\n<td><strong>☕ Java/Kotlin</strong><br/>JNI integration</td>\n</tr>\n<tr>\n<td><strong>🤖 Android</strong><br/>AAR library</td>\n<td><strong>🌐 JavaScript</strong><br/>WASM support</td>\n<td><strong>⚡ C/C++</strong><br/>FFI bindings</td>\n</tr>\n</table>\n\n### Quick Platform Setup\n\n```bash\n# Rust (recommended)\ncargo add chess-engine-rust\n\n# Python\npip install chess-engine-rust\n\n# JavaScript/Node.js\nnpm install chess-engine-rust\n\n# Java/Gradle\nimplementation 'com.chess:engine-rust:0.1.0'\n```"
+---
+
+## 📱 Platform Support
+
+<table>
+<tr>
+<td><strong>🦀 Rust</strong><br/>Native performance</td>
+<td><strong>🐍 Python</strong><br/>PyO3 bindings</td>
+<td><strong>☕ Java/Kotlin</strong><br/>JNI integration</td>
+/tr>
+<tr>
+<td><strong>🤖 Android</strong><br/>AAR library</td>
+<td><strong>🌐 JavaScript</strong><br/>WASM support</td>
+<td><strong>⚡ C/C++</strong><br/>FFI bindings</td>
+</tr>
+</table>
+
+### Quick Platform Setup
+
+```bash
+# Rust (recommended)
+cargo add chess-engine-rust
+
+# Python
+pip install chess-engine-rust
+
+# JavaScript/Node.js
+npm install chess-engine-rust
+
+# Java/Gradle
+implementation 'com.chess:engine-rust:0.1.0'
+```
 
 ## Project Structure
 
@@ -595,16 +627,15 @@ This project is licensed under the MIT License, making it free to use, modify, a
 ## 🆘 Support & Community
 
 - 📖 **Documentation**: [docs.rs/chess-engine-rust](https://docs.rs/chess-engine-rust)
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/username/chess-engine-rust/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/username/chess-engine-rust/discussions)
+- 🐛 **Bug Reports & Questions**: [GitHub Issues](https://github.com/akashraghav/Chess-Engine-Rust/issues)
+- � **Security Policy**: [Security Policy](https://github.com/akashraghav/Chess-Engine-Rust/security/policy)
 - 💡 **Feature Requests**: Use GitHub issues with the "enhancement" label
-- 📧 **Security Issues**: See [SECURITY.md](SECURITY.md)
+- 📧 **Security Issues**: Please follow the Security Policy above
 
 ### 📖 Additional Documentation
 
 - [🔧 HOW-IT-WORKS.md](HOW-IT-WORKS.md) - Deep dive into engine internals
 - [📋 CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
-- [🔒 SECURITY.md](SECURITY.md) - Security policy
 - [📱 Platform Guides](docs/platform-guides/) - Platform-specific setup guides
 
 ## Performance Tuning
@@ -631,17 +662,14 @@ This chess engine has achieved:
 
 **Check out our examples:**
 - [📁 examples/](examples/) - Comprehensive usage examples
-- [📖 docs/tutorials/](docs/tutorials/) - Step-by-step tutorials
-- [🎮 Demo Applications](demos/) - Full chess game implementations
+- [� Architecture Overview](docs/architecture.md) - High-level design
 
 **Popular Examples:**
 - `examples/basic_usage.rs` - Simple game setup
-- `examples/tournament_analysis.py` - Professional game analysis
-- `examples/android_integration/` - Mobile chess app
-- `examples/web_chess/` - Browser-based chess game
+- `examples/restructured_demo.rs` - End-to-end engine demo
 
 ---
 
 *Built with ❤️ by the Chess Engine Community*
 
-**[⭐ Star us on GitHub](https://github.com/username/chess-engine-rust)** if this engine helped your project!
+**[⭐ Star us on GitHub](https://github.com/akashraghav/Chess-Engine-Rust)** if this engine helped your project!
