@@ -3,7 +3,7 @@
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 [![Rust](https://img.shields.io/badge/rust-1.75%2B-orange.svg)](https://www.rust-lang.org/)
 [![Platform](https://img.shields.io/badge/platform-cross--platform-green.svg)](#platform-support)
-[![Visits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fakashraghav%2FChess-Engine-Rust&count_bg=%2379C83D&title_bg=%23555555&icon=github.svg&icon_color=%23E7E7E7&title=visits&edge_flat=false)](https://hits.seeyoufarm.com)
+[![Visits](https://hits.sh/akashraghav/Chess-Engine-Rust.svg?style=flat&label=visits&color=blue)](https://hits.sh/akashraghav/Chess-Engine-Rust/)
 
 A **high-performance, tournament-grade chess engine** implemented in Rust with world-class architecture and 100% test coverage. This engine follows international chess standards (FIDE) and provides cross-platform bindings for multiple languages.
 
@@ -84,7 +84,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 <td><strong>🦀 Rust</strong><br/>Native performance</td>
 <td><strong>🐍 Python</strong><br/>PyO3 bindings</td>
 <td><strong>☕ Java/Kotlin</strong><br/>JNI integration</td>
-/tr>
+</tr>
 <tr>
 <td><strong>🤖 Android</strong><br/>AAR library</td>
 <td><strong>🌐 JavaScript</strong><br/>WASM support</td>
@@ -628,7 +628,7 @@ This project is licensed under the MIT License, making it free to use, modify, a
 
 - 📖 **Documentation**: [docs.rs/chess-engine-rust](https://docs.rs/chess-engine-rust)
 - 🐛 **Bug Reports & Questions**: [GitHub Issues](https://github.com/akashraghav/Chess-Engine-Rust/issues)
-- � **Security Policy**: [Security Policy](https://github.com/akashraghav/Chess-Engine-Rust/security/policy)
+- 🔐 **Security Policy**: [Security Policy](https://github.com/akashraghav/Chess-Engine-Rust/security/policy)
 - 💡 **Feature Requests**: Use GitHub issues with the "enhancement" label
 - 📧 **Security Issues**: Please follow the Security Policy above
 
@@ -662,7 +662,7 @@ This chess engine has achieved:
 
 **Check out our examples:**
 - [📁 examples/](examples/) - Comprehensive usage examples
-- [� Architecture Overview](docs/architecture.md) - High-level design
+- [📄 Architecture Overview](docs/architecture.md) - High-level design
 
 **Popular Examples:**
 - `examples/basic_usage.rs` - Simple game setup
