@@ -2,7 +2,7 @@
 
 [![Rust](https://img.shields.io/badge/rust-1.75%2B-orange.svg)](https://www.rust-lang.org/) [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md) ![Visitors](https://visitor-badge.laobi.icu/badge?page_id=akashraghav.Chess-Engine-Rust)
 
-A high-performance, multi-platform chess engine written in Rust with cross-language bindings.
+A high-performance, multi-platform chess engine written in Rust with cross-language bindings. Made with GenAI.
 
 ## 🚀 Features
 
@@ -10,7 +10,7 @@ A high-performance, multi-platform chess engine written in Rust with cross-langu
 - **Cross-Platform**: x86_64, aarch64, SIMD optimizations
 - **Multi-Language**: Python, Java/Kotlin, JavaScript, C++ bindings
 - **Tournament-Grade**: Comprehensive chess rules, FEN parsing, UCI protocol
-- **Zero Warnings**: Production-ready code with 100% test coverage
+- **Production-Ready**: 100% test coverage with proper benchmarking
 
 ## 📁 Architecture
 
