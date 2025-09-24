@@ -3,8 +3,28 @@ name: 🦀 Continuous Integration
 on:
   push:
     branches: [ main, develop ]
+    paths:
+      - 'crates/**'
+      - 'benchmarks/**'
+      - 'examples/**'
+      - 'tests/**'
+      - 'scripts/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.cargo/**'
+      - '.github/workflows/**'
   pull_request:
     branches: [ main, develop ]
+    paths:
+      - 'crates/**'
+      - 'benchmarks/**'
+      - 'examples/**'
+      - 'tests/**'
+      - 'scripts/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.cargo/**'
+      - '.github/workflows/**'
 
 env:
   CARGO_TERM_COLOR: always
