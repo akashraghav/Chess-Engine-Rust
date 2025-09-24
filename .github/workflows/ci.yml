@@ -193,18 +193,16 @@ jobs:
           target/
         key: ${{ runner.os }}-${{ matrix.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-    - name: 🏗️ Build for ${{ matrix.name }}
+    - name: 🏗️ Build for ${{ matrix.name }} (ARM64 selective)
+      if: matrix.target == 'aarch64-unknown-linux-gnu'
       env:
         CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
         CXX_aarch64_unknown_linux_gnu: aarch64-linux-gnu-g++
-      run: |
-        if [ "${{ matrix.target }}" = "aarch64-unknown-linux-gnu" ]; then
-          # For ARM64 cross-compilation, only build essential packages
-          cargo build --release --target ${{ matrix.target }} --package chess-core --package chess-engine
-        else
-          # For native builds, build everything
-          cargo build --release --target ${{ matrix.target }}
-        fi
+      run: cargo build --release --target ${{ matrix.target }} --package chess-core --package chess-engine
+
+    - name: 🏗️ Build for ${{ matrix.name }} (full build)
+      if: matrix.target != 'aarch64-unknown-linux-gnu'
+      run: cargo build --release --target ${{ matrix.target }}
 
     - name: 📦 Archive build artifacts
       if: matrix.os != 'ubuntu-latest' || matrix.target == 'x86_64-unknown-linux-gnu'
