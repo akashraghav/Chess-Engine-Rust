@@ -1,6 +1,6 @@
+use chess_core::{Evaluator, GameState, MoveGenerator, Position};
 use chess_engine::{ChessEngine, ChessEngineBuilder};
-use chess_core::{GameState, MoveGenerator, Position, Evaluator};
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 // use std::time::Duration;
 
 fn benchmark_move_generation(c: &mut Criterion) {
@@ -118,10 +118,7 @@ fn benchmark_different_depths(c: &mut Criterion) {
     for depth in [1, 2, 3, 4, 5].iter() {
         group.bench_with_input(BenchmarkId::new("depth", depth), depth, |b, &depth| {
             b.iter(|| {
-                let mut engine = ChessEngineBuilder::new()
-                    .with_depth(depth)
-                    .build()
-                    .unwrap();
+                let mut engine = ChessEngineBuilder::new().with_depth(depth).build().unwrap();
 
                 let best_move = black_box(engine.find_best_move());
                 black_box(best_move)
@@ -135,9 +132,8 @@ fn benchmark_different_depths(c: &mut Criterion) {
 fn benchmark_memory_usage(c: &mut Criterion) {
     c.bench_function("memory_allocation", |b| {
         b.iter(|| {
-            let engines: Vec<ChessEngine> = (0..100)
-                .map(|_| black_box(ChessEngine::new()))
-                .collect();
+            let engines: Vec<ChessEngine> =
+                (0..100).map(|_| black_box(ChessEngine::new())).collect();
             black_box(engines)
         })
     });

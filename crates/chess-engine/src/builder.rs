@@ -1,4 +1,4 @@
-use crate::{ChessEngine, EngineConfig, Result, EngineError, EventHandler};
+use crate::{ChessEngine, EngineConfig, EngineError, EventHandler, Result};
 use std::sync::{Arc, Mutex};
 
 pub struct ChessEngineBuilder {
@@ -45,7 +45,7 @@ impl ChessEngineBuilder {
     }
 
     pub fn with_threads(mut self, thread_count: usize) -> Self {
-        self.config.thread_count = thread_count.max(1).min(16);
+        self.config.thread_count = thread_count.clamp(1, 16);
         self
     }
 
@@ -94,13 +94,13 @@ impl ChessEngineBuilder {
 
         if engine.get_config().depth > 15 && engine.get_config().time_limit_ms.is_none() {
             return Err(EngineError::ConfigurationError(
-                "Deep search requires time limit for safety".to_string()
+                "Deep search requires time limit for safety".to_string(),
             ));
         }
 
         if engine.get_config().thread_count > 1 && !engine.get_config().enable_transposition_table {
             return Err(EngineError::ConfigurationError(
-                "Multi-threading requires transposition table".to_string()
+                "Multi-threading requires transposition table".to_string(),
             ));
         }
 
@@ -117,7 +117,7 @@ impl Default for ChessEngineBuilder {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{Color, event::DefaultEventHandler};
+    use crate::{event::DefaultEventHandler, Color};
 
     #[test]
     fn test_builder_default() {
@@ -128,20 +128,14 @@ mod tests {
 
     #[test]
     fn test_builder_with_depth() {
-        let engine = ChessEngineBuilder::new()
-            .with_depth(10)
-            .build()
-            .unwrap();
+        let engine = ChessEngineBuilder::new().with_depth(10).build().unwrap();
         assert_eq!(engine.get_config().depth, 10);
     }
 
     #[test]
     fn test_builder_from_fen() {
         let fen = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1";
-        let engine = ChessEngineBuilder::new()
-            .from_fen(fen)
-            .build()
-            .unwrap();
+        let engine = ChessEngineBuilder::new().from_fen(fen).build().unwrap();
         assert_eq!(engine.get_side_to_move(), Color::Black);
     }
 
@@ -166,10 +160,7 @@ mod tests {
 
     #[test]
     fn test_builder_with_threads() {
-        let engine = ChessEngineBuilder::new()
-            .with_threads(4)
-            .build()
-            .unwrap();
+        let engine = ChessEngineBuilder::new().with_threads(4).build().unwrap();
         assert_eq!(engine.get_config().thread_count, 4);
     }
 

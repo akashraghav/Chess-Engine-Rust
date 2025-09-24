@@ -1,11 +1,14 @@
+use chess_core::{Move, PieceType, Square};
+use chess_engine::ChessEngine;
 use jni::objects::{JClass, JString};
 use jni::sys::{jboolean, jlong, jstring};
 use jni::JNIEnv;
-use chess_engine::ChessEngine;
-use chess_core::{Square, Move, PieceType};
-use std::str::FromStr;
-use std::sync::{Arc, Mutex, OnceLock, atomic::{AtomicI64, Ordering}};
 use std::collections::HashMap;
+use std::str::FromStr;
+use std::sync::{
+    atomic::{AtomicI64, Ordering},
+    Arc, Mutex, OnceLock,
+};
 
 type EngineId = i64;
 
@@ -21,7 +24,9 @@ fn get_next_id() -> EngineId {
 }
 
 fn string_to_jstring<'a>(env: JNIEnv<'a>, s: &str) -> jstring {
-    env.new_string(s).expect("Failed to create JString").into_raw()
+    env.new_string(s)
+        .expect("Failed to create JString")
+        .into_raw()
 }
 
 fn jstring_to_string<'a>(mut env: JNIEnv<'a>, jstr: JString<'a>) -> String {
@@ -91,10 +96,10 @@ pub extern "system" fn Java_com_chess_engine_ChessEngine_isLegalMove(
             if uci_str.len() < 4 {
                 return 0;
             }
-            
+
             let from = Square::from_str(&uci_str[0..2]);
             let to = Square::from_str(&uci_str[2..4]);
-            
+
             match (from, to) {
                 (Ok(from), Ok(to)) => {
                     // Handle promotion
@@ -109,10 +114,10 @@ pub extern "system" fn Java_com_chess_engine_ChessEngine_isLegalMove(
                     } else {
                         Move::normal(from, to)
                     };
-                    
+
                     return if engine.is_legal_move(mv) { 1 } else { 0 };
                 }
-                _ => return 0
+                _ => return 0,
             }
         }
     }

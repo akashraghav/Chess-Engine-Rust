@@ -1,6 +1,6 @@
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Not};
-use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Bitboard(pub u64);
@@ -155,7 +155,11 @@ impl fmt::Display for Bitboard {
             write!(f, "{} ", rank + 1)?;
             for file in 0..8 {
                 let square = rank * 8 + file;
-                let bit = if (self.0 >> square) & 1 == 1 { '1' } else { '.' };
+                let bit = if (self.0 >> square) & 1 == 1 {
+                    '1'
+                } else {
+                    '.'
+                };
                 write!(f, "{} ", bit)?;
             }
             writeln!(f, "{}", rank + 1)?;

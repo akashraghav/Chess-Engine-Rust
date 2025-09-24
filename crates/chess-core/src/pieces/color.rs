@@ -88,7 +88,10 @@ impl std::str::FromStr for Color {
         match s.to_lowercase().as_str() {
             "w" | "white" => Ok(Color::White),
             "b" | "black" => Ok(Color::Black),
-            _ => Err(crate::ChessError::ParseError(format!("Invalid color: {}", s))),
+            _ => Err(crate::ChessError::ParseError(format!(
+                "Invalid color: {}",
+                s
+            ))),
         }
     }
 }

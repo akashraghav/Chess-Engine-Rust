@@ -14,55 +14,58 @@ pub struct SimdBitboard;
 
 impl SimdBitboard {
     /// Process 4 bitboards in parallel using AVX2 (256-bit vectors)
-    #[cfg(all(target_feature = "avx2", any(target_arch = "x86", target_arch = "x86_64")))]
+    #[cfg(all(
+        target_feature = "avx2",
+        any(target_arch = "x86", target_arch = "x86_64")
+    ))]
     #[inline]
-    pub unsafe fn parallel_and_4(
-        a: &[Bitboard; 4], 
-        b: &[Bitboard; 4]
-    ) -> [Bitboard; 4] {
+    pub unsafe fn parallel_and_4(a: &[Bitboard; 4], b: &[Bitboard; 4]) -> [Bitboard; 4] {
         let a_vec = _mm256_load_si256(a.as_ptr() as *const __m256i);
         let b_vec = _mm256_load_si256(b.as_ptr() as *const __m256i);
         let result = _mm256_and_si256(a_vec, b_vec);
-        
+
         let mut output = [Bitboard::EMPTY; 4];
         _mm256_store_si256(output.as_mut_ptr() as *mut __m256i, result);
         output
     }
 
     /// Process 4 bitboards OR operation in parallel using AVX2
-    #[cfg(all(target_feature = "avx2", any(target_arch = "x86", target_arch = "x86_64")))]
+    #[cfg(all(
+        target_feature = "avx2",
+        any(target_arch = "x86", target_arch = "x86_64")
+    ))]
     #[inline]
-    pub unsafe fn parallel_or_4(
-        a: &[Bitboard; 4], 
-        b: &[Bitboard; 4]
-    ) -> [Bitboard; 4] {
+    pub unsafe fn parallel_or_4(a: &[Bitboard; 4], b: &[Bitboard; 4]) -> [Bitboard; 4] {
         let a_vec = _mm256_load_si256(a.as_ptr() as *const __m256i);
         let b_vec = _mm256_load_si256(b.as_ptr() as *const __m256i);
         let result = _mm256_or_si256(a_vec, b_vec);
-        
+
         let mut output = [Bitboard::EMPTY; 4];
         _mm256_store_si256(output.as_mut_ptr() as *mut __m256i, result);
         output
     }
 
     /// Process 4 bitboards XOR operation in parallel using AVX2
-    #[cfg(all(target_feature = "avx2", any(target_arch = "x86", target_arch = "x86_64")))]
+    #[cfg(all(
+        target_feature = "avx2",
+        any(target_arch = "x86", target_arch = "x86_64")
+    ))]
     #[inline]
-    pub unsafe fn parallel_xor_4(
-        a: &[Bitboard; 4], 
-        b: &[Bitboard; 4]
-    ) -> [Bitboard; 4] {
+    pub unsafe fn parallel_xor_4(a: &[Bitboard; 4], b: &[Bitboard; 4]) -> [Bitboard; 4] {
         let a_vec = _mm256_load_si256(a.as_ptr() as *const __m256i);
         let b_vec = _mm256_load_si256(b.as_ptr() as *const __m256i);
         let result = _mm256_xor_si256(a_vec, b_vec);
-        
+
         let mut output = [Bitboard::EMPTY; 4];
         _mm256_store_si256(output.as_mut_ptr() as *mut __m256i, result);
         output
     }
 
     /// Count bits in 4 bitboards simultaneously using POPCNT
-    #[cfg(all(target_feature = "popcnt", any(target_arch = "x86", target_arch = "x86_64")))]
+    #[cfg(all(
+        target_feature = "popcnt",
+        any(target_arch = "x86", target_arch = "x86_64")
+    ))]
     #[inline]
     pub unsafe fn parallel_popcount_4(boards: &[Bitboard; 4]) -> [u32; 4] {
         [
@@ -74,30 +77,30 @@ impl SimdBitboard {
     }
 
     /// Parallel shift operations for 4 bitboards
-    #[cfg(all(target_feature = "avx2", any(target_arch = "x86", target_arch = "x86_64")))]
+    #[cfg(all(
+        target_feature = "avx2",
+        any(target_arch = "x86", target_arch = "x86_64")
+    ))]
     #[inline]
-    pub unsafe fn parallel_shift_left_4(
-        boards: &[Bitboard; 4], 
-        shift: i32
-    ) -> [Bitboard; 4] {
+    pub unsafe fn parallel_shift_left_4(boards: &[Bitboard; 4], shift: i32) -> [Bitboard; 4] {
         let vec = _mm256_load_si256(boards.as_ptr() as *const __m256i);
         let result = _mm256_slli_epi64(vec, shift);
-        
+
         let mut output = [Bitboard::EMPTY; 4];
         _mm256_store_si256(output.as_mut_ptr() as *mut __m256i, result);
         output
     }
 
     /// Parallel shift operations for 4 bitboards (right shift)
-    #[cfg(all(target_feature = "avx2", any(target_arch = "x86", target_arch = "x86_64")))]
+    #[cfg(all(
+        target_feature = "avx2",
+        any(target_arch = "x86", target_arch = "x86_64")
+    ))]
     #[inline]
-    pub unsafe fn parallel_shift_right_4(
-        boards: &[Bitboard; 4], 
-        shift: i32
-    ) -> [Bitboard; 4] {
+    pub unsafe fn parallel_shift_right_4(boards: &[Bitboard; 4], shift: i32) -> [Bitboard; 4] {
         let vec = _mm256_load_si256(boards.as_ptr() as *const __m256i);
         let result = _mm256_srli_epi64(vec, shift);
-        
+
         let mut output = [Bitboard::EMPTY; 4];
         _mm256_store_si256(output.as_mut_ptr() as *mut __m256i, result);
         output
@@ -105,29 +108,13 @@ impl SimdBitboard {
 
     /// Fallback implementations for non-AVX2 systems
     #[inline]
-    pub fn parallel_and_4_fallback(
-        a: &[Bitboard; 4], 
-        b: &[Bitboard; 4]
-    ) -> [Bitboard; 4] {
-        [
-            a[0] & b[0],
-            a[1] & b[1],
-            a[2] & b[2],
-            a[3] & b[3],
-        ]
+    pub fn parallel_and_4_fallback(a: &[Bitboard; 4], b: &[Bitboard; 4]) -> [Bitboard; 4] {
+        [a[0] & b[0], a[1] & b[1], a[2] & b[2], a[3] & b[3]]
     }
 
     #[inline]
-    pub fn parallel_or_4_fallback(
-        a: &[Bitboard; 4], 
-        b: &[Bitboard; 4]
-    ) -> [Bitboard; 4] {
-        [
-            a[0] | b[0],
-            a[1] | b[1],
-            a[2] | b[2],
-            a[3] | b[3],
-        ]
+    pub fn parallel_or_4_fallback(a: &[Bitboard; 4], b: &[Bitboard; 4]) -> [Bitboard; 4] {
+        [a[0] | b[0], a[1] | b[1], a[2] | b[2], a[3] | b[3]]
     }
 
     #[inline]
@@ -271,7 +258,7 @@ mod tests {
         ];
 
         let result = OptimizedBitboard::batch_and_4(&a, &b);
-        
+
         assert_eq!(result[0].value(), 0xF000000000000000);
         assert_eq!(result[1].value(), 0x000F000000000000);
         assert_eq!(result[2].value(), 0x0000F00000000000);
@@ -282,13 +269,13 @@ mod tests {
     fn test_batch_popcount() {
         let boards = [
             Bitboard::new(0xFF00000000000000), // 8 bits
-            Bitboard::new(0x00FF000000000000), // 8 bits  
+            Bitboard::new(0x00FF000000000000), // 8 bits
             Bitboard::new(0x0000FF0000000000), // 8 bits
             Bitboard::new(0x000000FF00000000), // 8 bits
         ];
 
         let counts = OptimizedBitboard::batch_popcount_4(&boards);
-        
+
         assert_eq!(counts, [8, 8, 8, 8]);
     }
 
@@ -302,10 +289,10 @@ mod tests {
         ];
 
         let north_shifted = OptimizedBitboard::batch_north_shifts(&boards);
-        
+
         assert_eq!(north_shifted[0].value(), 0x000000000000FF00); // bottom→second rank ✓
         assert_eq!(north_shifted[1].value(), 0x0000000000FF0000); // second→third rank ✓
-        assert_eq!(north_shifted[2].value(), 0x00000000FF000000); // third→fourth rank ✓  
+        assert_eq!(north_shifted[2].value(), 0x00000000FF000000); // third→fourth rank ✓
         assert_eq!(north_shifted[3].value(), 0x000000FF00000000); // fourth→fifth rank ✓
     }
 }

@@ -525,6 +525,35 @@ We welcome contributions from chess enthusiasts, developers, and AI researchers!
 - **Documentation**: Comprehensive docs with examples
 - **Performance**: Benchmark changes with `cargo bench`
 
+### 🚀 Local CI Testing
+Before pushing changes, run our local CI scripts:
+
+```bash
+# Quick pre-commit check
+./scripts/ci quick
+
+# Full CI simulation (run before push)
+./scripts/ci full
+
+# Run all tests with coverage
+./scripts/ci test --coverage
+
+# Performance benchmarks
+./scripts/ci bench --save-results
+
+# Auto-fix common issues
+./scripts/ci fix
+```
+
+**Available Scripts:**
+- `./scripts/ci quick` - Essential checks (formatting, clippy, basic tests)
+- `./scripts/ci full` - Complete CI simulation matching GitHub Actions
+- `./scripts/ci test` - Comprehensive test suite
+- `./scripts/ci bench` - Performance benchmarks
+- `./scripts/ci fix` - Auto-fix formatting and linting issues
+
+See [`scripts/README.md`](scripts/README.md) for detailed documentation.
+
 ---
 
 ## 📊 Performance Benchmarks

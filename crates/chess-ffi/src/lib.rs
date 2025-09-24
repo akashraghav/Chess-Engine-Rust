@@ -1,10 +1,13 @@
+use chess_core::{Move, PieceType, Square};
 use chess_engine::{ChessEngine, Color, GameResult};
-use chess_core::{Square, Move, PieceType};
-use std::str::FromStr;
 use std::collections::HashMap;
 use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_int, c_long};
-use std::sync::{Arc, Mutex, OnceLock, atomic::{AtomicI64, Ordering}};
+use std::str::FromStr;
+use std::sync::{
+    atomic::{AtomicI64, Ordering},
+    Arc, Mutex, OnceLock,
+};
 
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
@@ -155,7 +158,13 @@ pub extern "C" fn chess_engine_make_move(engine_id: EngineId, uci_move: *const c
     if let Ok(mut engines_map) = engines.lock() {
         if let Some(engine) = engines_map.get_mut(&engine_id) {
             return match engine.make_move_from_uci(uci_str) {
-                Ok(result) => if result.success { 1 } else { 0 },
+                Ok(result) => {
+                    if result.success {
+                        1
+                    } else {
+                        0
+                    }
+                }
                 Err(_) => 0,
             };
         }
@@ -164,7 +173,10 @@ pub extern "C" fn chess_engine_make_move(engine_id: EngineId, uci_move: *const c
 }
 
 #[no_mangle]
-pub extern "C" fn chess_engine_is_legal_move(engine_id: EngineId, uci_move: *const c_char) -> c_int {
+pub extern "C" fn chess_engine_is_legal_move(
+    engine_id: EngineId,
+    uci_move: *const c_char,
+) -> c_int {
     if uci_move.is_null() {
         return 0;
     }
@@ -183,10 +195,10 @@ pub extern "C" fn chess_engine_is_legal_move(engine_id: EngineId, uci_move: *con
             if uci_str.len() < 4 {
                 return 0;
             }
-            
+
             let from = Square::from_str(&uci_str[0..2]);
             let to = Square::from_str(&uci_str[2..4]);
-            
+
             match (from, to) {
                 (Ok(from), Ok(to)) => {
                     // Handle promotion
@@ -201,10 +213,10 @@ pub extern "C" fn chess_engine_is_legal_move(engine_id: EngineId, uci_move: *con
                     } else {
                         Move::normal(from, to)
                     };
-                    
-                    return if engine.is_legal_move(mv) { 1 } else { 0 }
+
+                    return if engine.is_legal_move(mv) { 1 } else { 0 };
                 }
-                _ => return 0
+                _ => return 0,
             }
         }
     }
@@ -345,9 +357,7 @@ mod wasm {
         pub fn get_fen(&self) -> String {
             let fen_ptr = chess_engine_get_fen(self.engine_id);
             if !fen_ptr.is_null() {
-                let fen = unsafe {
-                    CStr::from_ptr(fen_ptr).to_string_lossy().into_owned()
-                };
+                let fen = unsafe { CStr::from_ptr(fen_ptr).to_string_lossy().into_owned() };
                 chess_engine_free_string(fen_ptr);
                 fen
             } else {
@@ -421,9 +431,7 @@ mod wasm {
         pub fn find_best_move(&self) -> Option<String> {
             let move_ptr = chess_engine_find_best_move(self.engine_id);
             if !move_ptr.is_null() {
-                let best_move = unsafe {
-                    CStr::from_ptr(move_ptr).to_string_lossy().into_owned()
-                };
+                let best_move = unsafe { CStr::from_ptr(move_ptr).to_string_lossy().into_owned() };
                 chess_engine_free_string(move_ptr);
                 Some(best_move)
             } else {
@@ -477,9 +485,7 @@ mod python {
         fn get_fen(&self) -> String {
             let fen_ptr = chess_engine_get_fen(self.engine_id);
             if !fen_ptr.is_null() {
-                let fen = unsafe {
-                    CStr::from_ptr(fen_ptr).to_string_lossy().into_owned()
-                };
+                let fen = unsafe { CStr::from_ptr(fen_ptr).to_string_lossy().into_owned() };
                 chess_engine_free_string(fen_ptr);
                 fen
             } else {
@@ -533,9 +539,7 @@ mod python {
         fn find_best_move(&self) -> Option<String> {
             let move_ptr = chess_engine_find_best_move(self.engine_id);
             if !move_ptr.is_null() {
-                let best_move = unsafe {
-                    CStr::from_ptr(move_ptr).to_string_lossy().into_owned()
-                };
+                let best_move = unsafe { CStr::from_ptr(move_ptr).to_string_lossy().into_owned() };
                 chess_engine_free_string(move_ptr);
                 Some(best_move)
             } else {

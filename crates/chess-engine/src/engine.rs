@@ -1,6 +1,9 @@
-use crate::{Result, EngineError, GameEvent, EventHandler, MoveResult, GameInfo, event::DefaultEventHandler};
+use crate::{
+    event::DefaultEventHandler, EngineError, EventHandler, GameEvent, GameInfo, MoveResult, Result,
+};
 use chess_core::{
-    GameState, Move, Color, GameResult, Evaluator, MoveGenerator, Position, SearchEngine, SearchConfig, Square, Piece
+    Color, Evaluator, GameResult, GameState, Move, MoveGenerator, Piece, Position, SearchConfig,
+    SearchEngine, Square,
 };
 use std::sync::{Arc, Mutex};
 
@@ -80,7 +83,9 @@ impl ChessEngine {
 
     pub fn initialize(&mut self) -> Result<()> {
         if self.initialized {
-            return Err(EngineError::InvalidState("Engine already initialized".to_string()));
+            return Err(EngineError::InvalidState(
+                "Engine already initialized".to_string(),
+            ));
         }
 
         self.emit_event(GameEvent::GameStarted);
@@ -102,7 +107,9 @@ impl ChessEngine {
 
     pub fn set_config(&mut self, config: EngineConfig) -> Result<()> {
         if self.initialized {
-            return Err(EngineError::InvalidState("Cannot change config after initialization".to_string()));
+            return Err(EngineError::InvalidState(
+                "Cannot change config after initialization".to_string(),
+            ));
         }
         self.config = config;
         Ok(())
@@ -147,7 +154,9 @@ impl ChessEngine {
         }
 
         let captured_piece = self.game_state.position.piece_at(mv.to);
-        let _is_check_before = self.game_state.is_in_check(self.game_state.position.side_to_move);
+        let _is_check_before = self
+            .game_state
+            .is_in_check(self.game_state.position.side_to_move);
 
         self.game_state.make_move(mv)?;
 
@@ -169,7 +178,7 @@ impl ChessEngine {
             if let Some(promotion_piece) = mv.promotion_piece() {
                 let promoted_piece = Piece::new(
                     promotion_piece,
-                    self.game_state.position.side_to_move.opposite()
+                    self.game_state.position.side_to_move.opposite(),
                 );
                 events.push(GameEvent::Promotion {
                     piece: promoted_piece,
@@ -180,9 +189,9 @@ impl ChessEngine {
 
         if mv.is_castle() {
             let side = match (mv.from, mv.to) {
-                (Square::E1, Square::G1) |
-                (Square::E8, Square::G8) =>
-                    crate::event::CastleSide::Kingside,
+                (Square::E1, Square::G1) | (Square::E8, Square::G8) => {
+                    crate::event::CastleSide::Kingside
+                }
                 _ => crate::event::CastleSide::Queenside,
             };
             events.push(GameEvent::Castle {
@@ -195,11 +204,14 @@ impl ChessEngine {
             let captured_square = match self.game_state.position.side_to_move {
                 Color::White => Square::from_file_rank(mv.to.file(), mv.to.rank() + 1),
                 Color::Black => Square::from_file_rank(mv.to.file(), mv.to.rank() - 1),
-            }.unwrap();
+            }
+            .unwrap();
             events.push(GameEvent::EnPassant { captured_square });
         }
 
-        let is_check_after = self.game_state.is_in_check(self.game_state.position.side_to_move);
+        let is_check_after = self
+            .game_state
+            .is_in_check(self.game_state.position.side_to_move);
         if is_check_after {
             events.push(GameEvent::Check {
                 color: self.game_state.position.side_to_move,
@@ -211,13 +223,21 @@ impl ChessEngine {
 
         match game_result {
             GameResult::WhiteWins => {
-                events.push(GameEvent::Checkmate { winner: Color::White });
-                events.push(GameEvent::GameEnded { result: game_result });
+                events.push(GameEvent::Checkmate {
+                    winner: Color::White,
+                });
+                events.push(GameEvent::GameEnded {
+                    result: game_result,
+                });
                 final_game_result = Some(game_result);
             }
             GameResult::BlackWins => {
-                events.push(GameEvent::Checkmate { winner: Color::Black });
-                events.push(GameEvent::GameEnded { result: game_result });
+                events.push(GameEvent::Checkmate {
+                    winner: Color::Black,
+                });
+                events.push(GameEvent::GameEnded {
+                    result: game_result,
+                });
                 final_game_result = Some(game_result);
             }
             GameResult::Draw => {
@@ -237,8 +257,12 @@ impl ChessEngine {
                     events.push(GameEvent::Stalemate);
                 }
 
-                events.push(GameEvent::Draw { reason: draw_reason });
-                events.push(GameEvent::GameEnded { result: game_result });
+                events.push(GameEvent::Draw {
+                    reason: draw_reason,
+                });
+                events.push(GameEvent::GameEnded {
+                    result: game_result,
+                });
                 final_game_result = Some(game_result);
             }
             GameResult::Ongoing => {}
@@ -321,7 +345,9 @@ impl ChessEngine {
     }
 
     fn parse_san_move(&self, _san: &str) -> Result<Move> {
-        Err(EngineError::InvalidState("SAN parsing not yet implemented".to_string()))
+        Err(EngineError::InvalidState(
+            "SAN parsing not yet implemented".to_string(),
+        ))
     }
 
     fn emit_event(&self, event: GameEvent) {
@@ -400,6 +426,10 @@ mod tests {
         let score = engine.evaluate();
         // The evaluation may be 0 or some positive value depending on the implementation
         // As long as it's consistent and not negative, it's acceptable
-        assert!(score >= 0, "Starting position evaluation should be non-negative: {}", score);
+        assert!(
+            score >= 0,
+            "Starting position evaluation should be non-negative: {}",
+            score
+        );
     }
 }

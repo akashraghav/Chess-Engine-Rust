@@ -1,41 +1,18 @@
-use crate::{Move, GameResult, Color, Square, Piece};
+use crate::{Color, GameResult, Move, Piece, Square};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum GameEvent {
     GameStarted,
-    MoveMade {
-        mv: Move,
-        san: String,
-        fen: String,
-    },
-    PieceCaptured {
-        piece: Piece,
-        square: Square,
-    },
-    Check {
-        color: Color,
-    },
-    Checkmate {
-        winner: Color,
-    },
+    MoveMade { mv: Move, san: String, fen: String },
+    PieceCaptured { piece: Piece, square: Square },
+    Check { color: Color },
+    Checkmate { winner: Color },
     Stalemate,
-    Draw {
-        reason: DrawReason,
-    },
-    Promotion {
-        piece: Piece,
-        square: Square,
-    },
-    Castle {
-        color: Color,
-        side: CastleSide,
-    },
-    EnPassant {
-        captured_square: Square,
-    },
-    GameEnded {
-        result: GameResult,
-    },
+    Draw { reason: DrawReason },
+    Promotion { piece: Piece, square: Square },
+    Castle { color: Color, side: CastleSide },
+    EnPassant { captured_square: Square },
+    GameEnded { result: GameResult },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -63,9 +40,7 @@ pub struct DefaultEventHandler {
 
 impl DefaultEventHandler {
     pub fn new() -> Self {
-        DefaultEventHandler {
-            events: Vec::new(),
-        }
+        DefaultEventHandler { events: Vec::new() }
     }
 
     pub fn get_events(&self) -> &[GameEvent] {

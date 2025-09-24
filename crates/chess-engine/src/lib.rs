@@ -1,17 +1,17 @@
-pub mod engine;
 pub mod builder;
+pub mod engine;
 pub mod error;
 pub mod event;
 
 pub use chess_core::{
-    Bitboard, Color, Piece, PieceType, Square, Move, MoveType, Position,
-    CastlingRights, GameResult, Evaluator
+    Bitboard, CastlingRights, Color, Evaluator, GameResult, Move, MoveType, Piece, PieceType,
+    Position, Square,
 };
 
-pub use engine::{ChessEngine, EngineConfig};
 pub use builder::ChessEngineBuilder;
+pub use engine::{ChessEngine, EngineConfig};
 pub use error::{EngineError, Result};
-pub use event::{GameEvent, EventHandler};
+pub use event::{EventHandler, GameEvent};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MoveResult {

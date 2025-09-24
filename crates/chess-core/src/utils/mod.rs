@@ -1,6 +1,8 @@
+pub mod memory;
 pub mod simd;
 pub mod zobrist;
-pub mod memory;
 
+pub use memory::{
+    MemoryConfig, MemoryManager, MemoryStats, MovePool, OptimizedMoveList, TranspositionTable,
+};
 pub use simd::{OptimizedBitboard, SimdBitboard};
-pub use memory::{MemoryManager, TranspositionTable, MovePool, OptimizedMoveList, MemoryConfig, MemoryStats};

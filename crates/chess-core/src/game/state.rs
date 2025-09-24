@@ -1,4 +1,4 @@
-use crate::{Position, Color, Square, Move, MoveGenerator, ChessError, Result, PieceType};
+use crate::{ChessError, Color, Move, MoveGenerator, PieceType, Position, Result, Square};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -58,16 +58,34 @@ impl CastlingRights {
         self.remove_queenside(color);
     }
 
-    pub fn to_string(&self) -> String {
+    pub fn to_fen(&self) -> String {
         let mut result = String::new();
-        if self.white_kingside { result.push('K'); }
-        if self.white_queenside { result.push('Q'); }
-        if self.black_kingside { result.push('k'); }
-        if self.black_queenside { result.push('q'); }
-        if result.is_empty() { result.push('-'); }
+        if self.white_kingside {
+            result.push('K');
+        }
+        if self.white_queenside {
+            result.push('Q');
+        }
+        if self.black_kingside {
+            result.push('k');
+        }
+        if self.black_queenside {
+            result.push('q');
+        }
+        if result.is_empty() {
+            result.push('-');
+        }
         result
     }
+}
 
+impl std::fmt::Display for CastlingRights {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.to_fen())
+    }
+}
+
+impl CastlingRights {
     pub fn from_string(s: &str) -> Result<Self> {
         if s == "-" {
             return Ok(CastlingRights::NONE);
@@ -80,7 +98,12 @@ impl CastlingRights {
                 'Q' => rights.white_queenside = true,
                 'k' => rights.black_kingside = true,
                 'q' => rights.black_queenside = true,
-                _ => return Err(ChessError::ParseError(format!("Invalid castling rights: {}", ch))),
+                _ => {
+                    return Err(ChessError::ParseError(format!(
+                        "Invalid castling rights: {}",
+                        ch
+                    )))
+                }
             }
         }
         Ok(rights)
@@ -130,7 +153,9 @@ impl GameState {
     pub fn from_fen(fen: &str) -> Result<Self> {
         let parts: Vec<&str> = fen.split_whitespace().collect();
         if parts.len() < 4 {
-            return Err(ChessError::ParseError("Invalid FEN: insufficient parts".to_string()));
+            return Err(ChessError::ParseError(
+                "Invalid FEN: insufficient parts".to_string(),
+            ));
         }
 
         let position = Position::from_fen(&format!("{} {}", parts[0], parts[1]))?;
@@ -143,13 +168,17 @@ impl GameState {
         };
 
         let halfmove_clock = if parts.len() > 4 {
-            parts[4].parse().map_err(|_| ChessError::ParseError("Invalid halfmove clock".to_string()))?
+            parts[4]
+                .parse()
+                .map_err(|_| ChessError::ParseError("Invalid halfmove clock".to_string()))?
         } else {
             0
         };
 
         let fullmove_number = if parts.len() > 5 {
-            parts[5].parse().map_err(|_| ChessError::ParseError("Invalid fullmove number".to_string()))?
+            parts[5]
+                .parse()
+                .map_err(|_| ChessError::ParseError("Invalid fullmove number".to_string()))?
         } else {
             1
         };
@@ -170,8 +199,9 @@ impl GameState {
         format!(
             "{} {} {} {} {}",
             self.position.to_fen(),
-            self.castling_rights.to_string(),
-            self.en_passant_target.map_or("-".to_string(), |sq| sq.to_string()),
+            self.castling_rights.to_fen(),
+            self.en_passant_target
+                .map_or("-".to_string(), |sq| sq.to_string()),
             self.halfmove_clock,
             self.fullmove_number
         )
@@ -260,10 +290,10 @@ impl GameState {
 
         for mv in pseudo_legal_moves {
             let mut test_state = self.clone();
-            if test_state.position.make_move(mv).is_ok() {
-                if !test_state.is_in_check(self.position.side_to_move) {
-                    legal_moves.push(mv);
-                }
+            if test_state.position.make_move(mv).is_ok()
+                && !test_state.is_in_check(self.position.side_to_move)
+            {
+                legal_moves.push(mv);
             }
         }
 
@@ -288,7 +318,8 @@ impl GameState {
                                 enemy_pieces,
                             );
                             if let Some(ep_target) = self.en_passant_target {
-                                let ep_attacks = self.move_generator.pawn_attacks(square, piece.color);
+                                let ep_attacks =
+                                    self.move_generator.pawn_attacks(square, piece.color);
                                 if ep_attacks & ep_target.bitboard() != crate::Bitboard::EMPTY {
                                     pawn_moves.push(Move::en_passant(square, ep_target));
                                 }
@@ -338,8 +369,18 @@ impl GameState {
 
     fn try_kingside_castle(&self, color: Color) -> Option<Move> {
         let (king_from, king_to, rook_from, squares_to_check) = match color {
-            Color::White => (Square::E1, Square::G1, Square::H1, vec![Square::F1, Square::G1]),
-            Color::Black => (Square::E8, Square::G8, Square::H8, vec![Square::F8, Square::G8]),
+            Color::White => (
+                Square::E1,
+                Square::G1,
+                Square::H1,
+                vec![Square::F1, Square::G1],
+            ),
+            Color::Black => (
+                Square::E8,
+                Square::G8,
+                Square::H8,
+                vec![Square::F8, Square::G8],
+            ),
         };
 
         if self.position.piece_at(king_from)?.piece_type != crate::PieceType::King {
@@ -419,7 +460,9 @@ impl GameState {
                     if let Some(piece) = self.position.piece_at(pawn_square) {
                         if piece.piece_type == PieceType::Pawn && piece.color == side_to_move {
                             // Check if this pawn can capture the en passant target
-                            if (en_passant_square.file() as i8 - pawn_square.file() as i8).abs() == 1 {
+                            if (en_passant_square.file() as i8 - pawn_square.file() as i8).abs()
+                                == 1
+                            {
                                 moves.push(Move::en_passant(pawn_square, en_passant_square));
                             }
                         }
@@ -453,12 +496,25 @@ impl GameState {
 
                         if let Some(target_square) = Square::new(file + target_rank * 8) {
                             // Generate all four promotion types
-                            for promotion_piece in [PieceType::Queen, PieceType::Rook, PieceType::Bishop, PieceType::Knight] {
+                            for promotion_piece in [
+                                PieceType::Queen,
+                                PieceType::Rook,
+                                PieceType::Bishop,
+                                PieceType::Knight,
+                            ] {
                                 if self.position.piece_at(target_square).is_none() {
-                                    moves.push(Move::promotion(pawn_square, target_square, promotion_piece));
+                                    moves.push(Move::promotion(
+                                        pawn_square,
+                                        target_square,
+                                        promotion_piece,
+                                    ));
                                 } else {
                                     // Capture promotion
-                                    moves.push(Move::promotion_capture(pawn_square, target_square, promotion_piece));
+                                    moves.push(Move::promotion_capture(
+                                        pawn_square,
+                                        target_square,
+                                        promotion_piece,
+                                    ));
                                 }
                             }
                         }
@@ -466,11 +522,22 @@ impl GameState {
                         // Check diagonal captures for promotion
                         for file_offset in [-1, 1] {
                             let target_file = file as i8 + file_offset;
-                            if target_file >= 0 && target_file < 8 {
-                                if let Some(target_square) = Square::new((target_file + target_rank as i8 * 8) as u8) {
+                            if (0..8).contains(&target_file) {
+                                if let Some(target_square) =
+                                    Square::new((target_file + target_rank as i8 * 8) as u8)
+                                {
                                     if self.position.piece_at(target_square).is_some() {
-                                        for promotion_piece in [PieceType::Queen, PieceType::Rook, PieceType::Bishop, PieceType::Knight] {
-                                            moves.push(Move::promotion_capture(pawn_square, target_square, promotion_piece));
+                                        for promotion_piece in [
+                                            PieceType::Queen,
+                                            PieceType::Rook,
+                                            PieceType::Bishop,
+                                            PieceType::Knight,
+                                        ] {
+                                            moves.push(Move::promotion_capture(
+                                                pawn_square,
+                                                target_square,
+                                                promotion_piece,
+                                            ));
                                         }
                                     }
                                 }
@@ -516,7 +583,7 @@ impl GameState {
         }
         false
     }
-    
+
     fn count_pieces(&self) -> usize {
         let mut count = 0;
         for square_idx in 0..64 {
@@ -532,7 +599,10 @@ impl GameState {
     }
 
     pub fn is_draw(&self) -> bool {
-        self.is_stalemate() || self.is_fifty_move_rule() || self.is_threefold_repetition() || self.is_insufficient_material()
+        self.is_stalemate()
+            || self.is_fifty_move_rule()
+            || self.is_threefold_repetition()
+            || self.is_insufficient_material()
     }
 
     pub fn is_fifty_move_rule(&self) -> bool {
@@ -555,13 +625,31 @@ impl GameState {
             return false;
         }
 
-        let white_has_major = self.position.pieces_of_type(crate::PieceType::Queen, Color::White).is_not_empty()
-            || self.position.pieces_of_type(crate::PieceType::Rook, Color::White).is_not_empty()
-            || self.position.pieces_of_type(crate::PieceType::Pawn, Color::White).is_not_empty();
+        let white_has_major = self
+            .position
+            .pieces_of_type(crate::PieceType::Queen, Color::White)
+            .is_not_empty()
+            || self
+                .position
+                .pieces_of_type(crate::PieceType::Rook, Color::White)
+                .is_not_empty()
+            || self
+                .position
+                .pieces_of_type(crate::PieceType::Pawn, Color::White)
+                .is_not_empty();
 
-        let black_has_major = self.position.pieces_of_type(crate::PieceType::Queen, Color::Black).is_not_empty()
-            || self.position.pieces_of_type(crate::PieceType::Rook, Color::Black).is_not_empty()
-            || self.position.pieces_of_type(crate::PieceType::Pawn, Color::Black).is_not_empty();
+        let black_has_major = self
+            .position
+            .pieces_of_type(crate::PieceType::Queen, Color::Black)
+            .is_not_empty()
+            || self
+                .position
+                .pieces_of_type(crate::PieceType::Rook, Color::Black)
+                .is_not_empty()
+            || self
+                .position
+                .pieces_of_type(crate::PieceType::Pawn, Color::Black)
+                .is_not_empty();
 
         if white_has_major || black_has_major {
             return false;
@@ -634,10 +722,10 @@ mod tests {
     #[test]
     fn test_castling_rights_string() {
         let rights = CastlingRights::ALL;
-        assert_eq!(rights.to_string(), "KQkq");
+        assert_eq!(rights.to_fen(), "KQkq");
 
         let no_rights = CastlingRights::NONE;
-        assert_eq!(no_rights.to_string(), "-");
+        assert_eq!(no_rights.to_fen(), "-");
 
         let parsed = CastlingRights::from_string("Kq").unwrap();
         assert!(parsed.white_kingside);
@@ -677,14 +765,20 @@ mod tests {
 
         assert_eq!(legal_moves.len(), 20);
 
-        let pawn_moves = legal_moves.iter().filter(|mv| {
-            game.position.piece_at(mv.from).unwrap().piece_type == crate::PieceType::Pawn
-        }).count();
+        let pawn_moves = legal_moves
+            .iter()
+            .filter(|mv| {
+                game.position.piece_at(mv.from).unwrap().piece_type == crate::PieceType::Pawn
+            })
+            .count();
         assert_eq!(pawn_moves, 16);
 
-        let knight_moves = legal_moves.iter().filter(|mv| {
-            game.position.piece_at(mv.from).unwrap().piece_type == crate::PieceType::Knight
-        }).count();
+        let knight_moves = legal_moves
+            .iter()
+            .filter(|mv| {
+                game.position.piece_at(mv.from).unwrap().piece_type == crate::PieceType::Knight
+            })
+            .count();
         assert_eq!(knight_moves, 4);
     }
 

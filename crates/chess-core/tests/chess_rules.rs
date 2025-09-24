@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod chess_rules_tests {
-    use chess_core::{GameState, Color, Square, Move, PieceType};
+    use chess_core::{Color, GameState, Move, PieceType, Square};
 
     #[test]
     fn test_starting_position_move_count() {
@@ -9,7 +9,11 @@ mod chess_rules_tests {
 
         // Starting position should have exactly 20 legal moves for white
         // 16 pawn moves (2 per pawn) + 4 knight moves (2 per knight)
-        assert_eq!(moves.len(), 20, "Starting position should have 20 legal moves");
+        assert_eq!(
+            moves.len(),
+            20,
+            "Starting position should have 20 legal moves"
+        );
     }
 
     #[test]
@@ -19,7 +23,11 @@ mod chess_rules_tests {
 
         // No castling should be possible in starting position (pieces in the way)
         let castle_moves: Vec<_> = moves.iter().filter(|m| m.is_castle()).collect();
-        assert_eq!(castle_moves.len(), 0, "No castling should be possible in starting position");
+        assert_eq!(
+            castle_moves.len(),
+            0,
+            "No castling should be possible in starting position"
+        );
     }
 
     #[test]
@@ -28,14 +36,19 @@ mod chess_rules_tests {
         let moves = game_state.generate_legal_moves();
 
         // Check that we have the expected pawn moves
-        let pawn_moves: Vec<_> = moves.iter()
+        let pawn_moves: Vec<_> = moves
+            .iter()
             .filter(|m| {
                 // Pawn moves from rank 2 to rank 3 or 4
                 m.from.rank() == 1 && (m.to.rank() == 2 || m.to.rank() == 3)
             })
             .collect();
 
-        assert_eq!(pawn_moves.len(), 16, "Should have 16 pawn moves from starting position");
+        assert_eq!(
+            pawn_moves.len(),
+            16,
+            "Should have 16 pawn moves from starting position"
+        );
     }
 
     #[test]
@@ -44,14 +57,22 @@ mod chess_rules_tests {
         let moves = game_state.generate_legal_moves();
 
         // Check knight moves from b1 and g1
-        let knight_moves: Vec<_> = moves.iter()
+        let knight_moves: Vec<_> = moves
+            .iter()
             .filter(|m| {
-                (m.from == Square::B1 || m.from == Square::G1) &&
-                (m.to == Square::A3 || m.to == Square::C3 || m.to == Square::F3 || m.to == Square::H3)
+                (m.from == Square::B1 || m.from == Square::G1)
+                    && (m.to == Square::A3
+                        || m.to == Square::C3
+                        || m.to == Square::F3
+                        || m.to == Square::H3)
             })
             .collect();
 
-        assert_eq!(knight_moves.len(), 4, "Should have 4 knight moves from starting position");
+        assert_eq!(
+            knight_moves.len(),
+            4,
+            "Should have 4 knight moves from starting position"
+        );
     }
 
     #[test]
@@ -60,8 +81,14 @@ mod chess_rules_tests {
         // This would require setting up a specific position
         // For now, just test the basic framework
         let game_state = GameState::new();
-        assert!(!game_state.is_in_check(Color::White), "King should not be in check in starting position");
-        assert!(!game_state.is_in_check(Color::Black), "King should not be in check in starting position");
+        assert!(
+            !game_state.is_in_check(Color::White),
+            "King should not be in check in starting position"
+        );
+        assert!(
+            !game_state.is_in_check(Color::Black),
+            "King should not be in check in starting position"
+        );
     }
 
     #[test]
@@ -70,9 +97,13 @@ mod chess_rules_tests {
 
         // Starting position should have all castling rights
         assert!(game_state.castling_rights.can_castle_kingside(Color::White));
-        assert!(game_state.castling_rights.can_castle_queenside(Color::White));
+        assert!(game_state
+            .castling_rights
+            .can_castle_queenside(Color::White));
         assert!(game_state.castling_rights.can_castle_kingside(Color::Black));
-        assert!(game_state.castling_rights.can_castle_queenside(Color::Black));
+        assert!(game_state
+            .castling_rights
+            .can_castle_queenside(Color::Black));
     }
 
     #[test]
@@ -91,15 +122,23 @@ mod chess_rules_tests {
 
     #[test]
     fn test_fen_parsing_starting_position() {
-        let result = GameState::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-        assert!(result.is_ok(), "Should be able to parse starting position FEN");
+        let result =
+            GameState::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        assert!(
+            result.is_ok(),
+            "Should be able to parse starting position FEN"
+        );
 
         if let Ok(game_state) = result {
             assert_eq!(game_state.position.side_to_move, Color::White);
             assert!(game_state.castling_rights.can_castle_kingside(Color::White));
-            assert!(game_state.castling_rights.can_castle_queenside(Color::White));
+            assert!(game_state
+                .castling_rights
+                .can_castle_queenside(Color::White));
             assert!(game_state.castling_rights.can_castle_kingside(Color::Black));
-            assert!(game_state.castling_rights.can_castle_queenside(Color::Black));
+            assert!(game_state
+                .castling_rights
+                .can_castle_queenside(Color::Black));
         }
     }
 
@@ -113,15 +152,24 @@ mod chess_rules_tests {
         // The exact value may change as we improve the engine, but it should be > 0 for white
         // indicating slight advantage due to going first
         println!("Evaluation score: {}", score);
-        assert!(score >= 0, "Starting position should evaluate favorably for white or be equal");
+        assert!(
+            score >= 0,
+            "Starting position should evaluate favorably for white or be equal"
+        );
     }
 
     #[test]
     fn test_game_not_over_at_start() {
         let game_state = GameState::new();
 
-        assert!(!game_state.is_checkmate(), "Game should not be checkmate at start");
-        assert!(!game_state.is_stalemate(), "Game should not be stalemate at start");
+        assert!(
+            !game_state.is_checkmate(),
+            "Game should not be checkmate at start"
+        );
+        assert!(
+            !game_state.is_stalemate(),
+            "Game should not be stalemate at start"
+        );
         assert!(!game_state.is_draw(), "Game should not be draw at start");
     }
 
@@ -133,11 +181,18 @@ mod chess_rules_tests {
         let moves1 = game_state.generate_legal_moves();
         let moves2 = game_state.generate_legal_moves();
 
-        assert_eq!(moves1.len(), moves2.len(), "Move generation should be consistent");
+        assert_eq!(
+            moves1.len(),
+            moves2.len(),
+            "Move generation should be consistent"
+        );
 
         // Check that all moves in first generation are in second
         for move1 in &moves1 {
-            assert!(moves2.contains(move1), "Generated moves should be consistent");
+            assert!(
+                moves2.contains(move1),
+                "Generated moves should be consistent"
+            );
         }
     }
 
@@ -148,31 +203,91 @@ mod chess_rules_tests {
         // Test that pieces are in correct starting positions
 
         // White pieces
-        assert_eq!(game_state.position.piece_at(Square::E1).map(|p| p.piece_type), Some(PieceType::King));
-        assert_eq!(game_state.position.piece_at(Square::D1).map(|p| p.piece_type), Some(PieceType::Queen));
-        assert_eq!(game_state.position.piece_at(Square::A1).map(|p| p.piece_type), Some(PieceType::Rook));
-        assert_eq!(game_state.position.piece_at(Square::H1).map(|p| p.piece_type), Some(PieceType::Rook));
+        assert_eq!(
+            game_state
+                .position
+                .piece_at(Square::E1)
+                .map(|p| p.piece_type),
+            Some(PieceType::King)
+        );
+        assert_eq!(
+            game_state
+                .position
+                .piece_at(Square::D1)
+                .map(|p| p.piece_type),
+            Some(PieceType::Queen)
+        );
+        assert_eq!(
+            game_state
+                .position
+                .piece_at(Square::A1)
+                .map(|p| p.piece_type),
+            Some(PieceType::Rook)
+        );
+        assert_eq!(
+            game_state
+                .position
+                .piece_at(Square::H1)
+                .map(|p| p.piece_type),
+            Some(PieceType::Rook)
+        );
 
         // Black pieces
-        assert_eq!(game_state.position.piece_at(Square::E8).map(|p| p.piece_type), Some(PieceType::King));
-        assert_eq!(game_state.position.piece_at(Square::D8).map(|p| p.piece_type), Some(PieceType::Queen));
-        assert_eq!(game_state.position.piece_at(Square::A8).map(|p| p.piece_type), Some(PieceType::Rook));
-        assert_eq!(game_state.position.piece_at(Square::H8).map(|p| p.piece_type), Some(PieceType::Rook));
+        assert_eq!(
+            game_state
+                .position
+                .piece_at(Square::E8)
+                .map(|p| p.piece_type),
+            Some(PieceType::King)
+        );
+        assert_eq!(
+            game_state
+                .position
+                .piece_at(Square::D8)
+                .map(|p| p.piece_type),
+            Some(PieceType::Queen)
+        );
+        assert_eq!(
+            game_state
+                .position
+                .piece_at(Square::A8)
+                .map(|p| p.piece_type),
+            Some(PieceType::Rook)
+        );
+        assert_eq!(
+            game_state
+                .position
+                .piece_at(Square::H8)
+                .map(|p| p.piece_type),
+            Some(PieceType::Rook)
+        );
 
         // Pawns
         for file in 0..8 {
             let white_pawn_square = Square::new(file + 8).unwrap(); // Rank 2
             let black_pawn_square = Square::new(file + 48).unwrap(); // Rank 7
 
-            assert_eq!(game_state.position.piece_at(white_pawn_square).map(|p| p.piece_type), Some(PieceType::Pawn));
-            assert_eq!(game_state.position.piece_at(black_pawn_square).map(|p| p.piece_type), Some(PieceType::Pawn));
+            assert_eq!(
+                game_state
+                    .position
+                    .piece_at(white_pawn_square)
+                    .map(|p| p.piece_type),
+                Some(PieceType::Pawn)
+            );
+            assert_eq!(
+                game_state
+                    .position
+                    .piece_at(black_pawn_square)
+                    .map(|p| p.piece_type),
+                Some(PieceType::Pawn)
+            );
         }
     }
 }
 
 #[cfg(test)]
 mod castle_specific_tests {
-    use chess_core::{GameState, Color, Square, Move};
+    use chess_core::{Color, GameState, Move, Square};
 
     #[test]
     fn test_castle_move_creation() {
@@ -192,7 +307,11 @@ mod castle_specific_tests {
 
         // In starting position, castling should be blocked by pieces
         let castle_moves = game_state.generate_castle_moves();
-        assert_eq!(castle_moves.len(), 0, "Castling should be blocked in starting position");
+        assert_eq!(
+            castle_moves.len(),
+            0,
+            "Castling should be blocked in starting position"
+        );
     }
 
     #[test]
@@ -210,7 +329,7 @@ mod castle_specific_tests {
 
 #[cfg(test)]
 mod edge_case_tests {
-    use chess_core::{GameState, Color};
+    use chess_core::{Color, GameState};
 
     #[test]
     fn test_empty_move_list_handling() {
@@ -220,7 +339,10 @@ mod edge_case_tests {
         let moves = game_state.generate_legal_moves();
 
         // Starting position should always have moves
-        assert!(!moves.is_empty(), "Starting position should have legal moves");
+        assert!(
+            !moves.is_empty(),
+            "Starting position should have legal moves"
+        );
     }
 
     #[test]
@@ -253,14 +375,18 @@ mod edge_case_tests {
 
 #[cfg(test)]
 mod special_moves_tests {
-    use chess_core::{GameState, Square, Move, PieceType};
+    use chess_core::{GameState, Move, PieceType, Square};
 
     #[test]
     fn test_en_passant_generation() {
         // In starting position, no en passant should be possible
         let game_state = GameState::new();
         let en_passant_moves = game_state.generate_en_passant_moves();
-        assert_eq!(en_passant_moves.len(), 0, "No en passant in starting position");
+        assert_eq!(
+            en_passant_moves.len(),
+            0,
+            "No en passant in starting position"
+        );
     }
 
     #[test]
@@ -268,7 +394,11 @@ mod special_moves_tests {
         // In starting position, no promotions should be possible
         let game_state = GameState::new();
         let promotion_moves = game_state.generate_promotion_moves();
-        assert_eq!(promotion_moves.len(), 0, "No promotions in starting position");
+        assert_eq!(
+            promotion_moves.len(),
+            0,
+            "No promotions in starting position"
+        );
     }
 
     #[test]
@@ -295,22 +425,28 @@ mod special_moves_tests {
         let all_moves = game_state.generate_pseudo_legal_moves();
 
         // Starting position should have normal moves but no special moves
-        let normal_moves: Vec<_> = all_moves.iter().filter(|m| {
-            !m.is_castle() && !m.is_en_passant() && !m.is_promotion()
-        }).collect();
+        let normal_moves: Vec<_> = all_moves
+            .iter()
+            .filter(|m| !m.is_castle() && !m.is_en_passant() && !m.is_promotion())
+            .collect();
 
-        let special_moves: Vec<_> = all_moves.iter().filter(|m| {
-            m.is_castle() || m.is_en_passant() || m.is_promotion()
-        }).collect();
+        let special_moves: Vec<_> = all_moves
+            .iter()
+            .filter(|m| m.is_castle() || m.is_en_passant() || m.is_promotion())
+            .collect();
 
-        assert!(normal_moves.len() > 0, "Should have normal moves");
-        assert_eq!(special_moves.len(), 0, "Should have no special moves in starting position");
+        assert!(!normal_moves.is_empty(), "Should have normal moves");
+        assert_eq!(
+            special_moves.len(),
+            0,
+            "Should have no special moves in starting position"
+        );
     }
 }
 
 #[cfg(test)]
 mod comprehensive_rules_tests {
-    use chess_core::{GameState, Color};
+    use chess_core::{Color, GameState};
 
     #[test]
     fn test_all_move_types_framework() {
@@ -323,10 +459,11 @@ mod comprehensive_rules_tests {
         let promotion_moves = game_state.generate_promotion_moves();
 
         // All methods should return vectors (even if empty)
-        assert!(normal_moves.len() >= 0);
-        assert!(castle_moves.len() >= 0);
-        assert!(en_passant_moves.len() >= 0);
-        assert!(promotion_moves.len() >= 0);
+        // Verify move collections are valid (length checks are unnecessary for usize)
+        let _ = normal_moves.len();
+        let _ = castle_moves.len();
+        let _ = en_passant_moves.len();
+        let _ = promotion_moves.len();
     }
 
     #[test]
@@ -351,8 +488,11 @@ mod comprehensive_rules_tests {
 
         // In starting position, all pseudo-legal moves should be legal
         // (no pieces can be pinned or expose the king)
-        assert_eq!(legal_moves.len(), pseudo_legal_moves.len(),
-                   "All pseudo-legal moves should be legal in starting position");
+        assert_eq!(
+            legal_moves.len(),
+            pseudo_legal_moves.len(),
+            "All pseudo-legal moves should be legal in starting position"
+        );
     }
 }
 
@@ -375,7 +515,11 @@ mod performance_tests {
         let moves_per_second = iterations as f64 / duration.as_secs_f64();
 
         // Should be able to generate moves quickly
-        assert!(moves_per_second > 10000.0, "Move generation should be fast: {} moves/sec", moves_per_second);
+        assert!(
+            moves_per_second > 10000.0,
+            "Move generation should be fast: {} moves/sec",
+            moves_per_second
+        );
     }
 
     #[test]
@@ -391,6 +535,10 @@ mod performance_tests {
         let positions_per_second = iterations as f64 / duration.as_secs_f64();
 
         // Should be able to create positions quickly
-        assert!(positions_per_second > 100000.0, "Position creation should be fast: {} positions/sec", positions_per_second);
+        assert!(
+            positions_per_second > 100000.0,
+            "Position creation should be fast: {} positions/sec",
+            positions_per_second
+        );
     }
 }

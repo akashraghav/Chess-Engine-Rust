@@ -188,10 +188,10 @@ impl MagicBitboards {
     fn calculate_rook_attacks(&self, square: Square, occupied: Bitboard) -> Bitboard {
         let mut attacks = Bitboard::EMPTY;
 
-        attacks |= self.ray_attacks(square, occupied, 8, 7 - square.rank());    // Up
-        attacks |= self.ray_attacks(square, occupied, -8, square.rank());       // Down  
-        attacks |= self.ray_attacks(square, occupied, 1, 7 - square.file());   // Right
-        attacks |= self.ray_attacks(square, occupied, -1, square.file());       // Left
+        attacks |= self.ray_attacks(square, occupied, 8, 7 - square.rank()); // Up
+        attacks |= self.ray_attacks(square, occupied, -8, square.rank()); // Down
+        attacks |= self.ray_attacks(square, occupied, 1, 7 - square.file()); // Right
+        attacks |= self.ray_attacks(square, occupied, -1, square.file()); // Left
 
         attacks
     }
@@ -209,13 +209,19 @@ impl MagicBitboards {
         attacks
     }
 
-    fn ray_attacks(&self, square: Square, occupied: Bitboard, delta: i8, max_distance: u8) -> Bitboard {
+    fn ray_attacks(
+        &self,
+        square: Square,
+        occupied: Bitboard,
+        delta: i8,
+        max_distance: u8,
+    ) -> Bitboard {
         let mut attacks = Bitboard::EMPTY;
         let mut current_square = square.index() as i8;
 
         for _ in 0..max_distance {
             current_square += delta;
-            if current_square < 0 || current_square >= 64 {
+            if !(0..64).contains(&current_square) {
                 break;
             }
 
@@ -234,11 +240,13 @@ impl MagicBitboards {
     pub fn rook_attacks(&self, square: Square, occupied: Bitboard) -> Bitboard {
         let magic_entry = &self.rook_magics[square.index() as usize];
         let relevant_occupied = occupied & magic_entry.mask;
-        let index = ((relevant_occupied.value().wrapping_mul(magic_entry.magic)) >> magic_entry.shift) as usize;
+        let index = ((relevant_occupied.value().wrapping_mul(magic_entry.magic))
+            >> magic_entry.shift) as usize;
         let magic_result = self.rook_attacks[magic_entry.offset + index];
-        
+
         // Only fallback for known problematic squares on empty board
-        if occupied == Bitboard::EMPTY && square.index() == 28 { // E4 only
+        if occupied == Bitboard::EMPTY && square.index() == 28 {
+            // E4 only
             // Quick check: does magic result include E1 and E8?
             let e1_e8 = Square::E1.bitboard() | Square::E8.bitboard();
             if (magic_result & e1_e8) != e1_e8 {
@@ -246,7 +254,7 @@ impl MagicBitboards {
                 return self.calculate_rook_attacks(square, occupied);
             }
         }
-        
+
         magic_result
     }
 
@@ -254,7 +262,8 @@ impl MagicBitboards {
     pub fn bishop_attacks(&self, square: Square, occupied: Bitboard) -> Bitboard {
         let magic_entry = &self.bishop_magics[square.index() as usize];
         let relevant_occupied = occupied & magic_entry.mask;
-        let index = ((relevant_occupied.value().wrapping_mul(magic_entry.magic)) >> magic_entry.shift) as usize;
+        let index = ((relevant_occupied.value().wrapping_mul(magic_entry.magic))
+            >> magic_entry.shift) as usize;
         self.bishop_attacks[magic_entry.offset + index]
     }
 

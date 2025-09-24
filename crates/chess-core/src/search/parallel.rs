@@ -1,10 +1,10 @@
 // Parallel processing for chess engine using Rayon
 // Implements multi-threaded move generation, search, and evaluation
 
-use crate::{Position, Move, Bitboard, MoveGenerator, OptimizedEvaluator};
+use crate::{Bitboard, Move, MoveGenerator, OptimizedEvaluator, Position};
 use rayon::prelude::*;
-use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 
 /// Configuration for parallel processing
 #[derive(Debug, Clone)]
@@ -56,14 +56,17 @@ impl ParallelMoveGenerator {
     pub fn bulk_generate_moves(&self, positions: &[Position]) -> Vec<Vec<Move>> {
         if !self.config.enable_parallel_moves || positions.len() < self.config.chunk_size {
             // Use sequential generation for small batches
-            return positions.iter()
+            return positions
+                .iter()
                 .map(|pos| self.generator.generate_legal_moves(pos))
                 .collect();
         }
 
-        positions.par_chunks(self.config.chunk_size)
+        positions
+            .par_chunks(self.config.chunk_size)
             .flat_map(|chunk| {
-                chunk.par_iter()
+                chunk
+                    .par_iter()
                     .map(|pos| self.generator.generate_legal_moves(pos))
                     .collect::<Vec<_>>()
             })
@@ -73,12 +76,14 @@ impl ParallelMoveGenerator {
     /// Parallel move validation for multiple move-position pairs
     pub fn bulk_validate_moves(&self, move_position_pairs: &[(Move, Position)]) -> Vec<bool> {
         if move_position_pairs.len() < self.config.chunk_size {
-            return move_position_pairs.iter()
+            return move_position_pairs
+                .iter()
                 .map(|(move_item, pos)| self.is_legal_move(move_item, pos))
                 .collect();
         }
 
-        move_position_pairs.par_iter()
+        move_position_pairs
+            .par_iter()
             .map(|(move_item, pos)| self.is_legal_move(move_item, pos))
             .collect()
     }
@@ -86,10 +91,9 @@ impl ParallelMoveGenerator {
     /// Parallel move generation with SIMD optimization
     pub fn simd_parallel_move_generation(&self, positions: &[Position]) -> Vec<Vec<Move>> {
         // Process positions in groups of 4 for SIMD optimization
-        positions.par_chunks(4)
-            .flat_map(|chunk| {
-                self.process_position_chunk_simd(chunk)
-            })
+        positions
+            .par_chunks(4)
+            .flat_map(|chunk| self.process_position_chunk_simd(chunk))
             .collect()
     }
 
@@ -107,9 +111,9 @@ impl ParallelMoveGenerator {
         let padded_chunk_size = chunk.len().min(4);
         let mut results = Vec::with_capacity(padded_chunk_size);
 
-        for i in 0..padded_chunk_size {
+        for position in chunk.iter().take(padded_chunk_size) {
             // For now, use regular move generation - SIMD integration would require more complex bitboard operations
-            results.push(self.generator.generate_legal_moves(&chunk[i]));
+            results.push(self.generator.generate_legal_moves(position));
         }
 
         results
@@ -145,7 +149,8 @@ impl ParallelEvaluator {
     /// Evaluate multiple positions in parallel
     pub fn bulk_evaluate(&mut self, positions: &[Position]) -> Vec<i32> {
         if !self.config.enable_parallel_eval || positions.len() < self.config.chunk_size {
-            return positions.iter()
+            return positions
+                .iter()
                 .map(|pos| self.evaluator.evaluate(pos))
                 .collect();
         }
@@ -153,9 +158,11 @@ impl ParallelEvaluator {
         // For parallel evaluation, we need to clone the evaluator for each thread
         // to avoid borrowing issues
         let evaluator = self.evaluator.clone();
-        positions.par_chunks(self.config.chunk_size)
+        positions
+            .par_chunks(self.config.chunk_size)
             .flat_map(|chunk| {
-                chunk.par_iter()
+                chunk
+                    .par_iter()
                     .map(|pos| {
                         let mut eval = evaluator.clone();
                         eval.evaluate(pos)
@@ -168,7 +175,8 @@ impl ParallelEvaluator {
     /// SIMD-optimized parallel evaluation for multiple positions
     pub fn simd_bulk_evaluate(&mut self, positions: &[Position]) -> Vec<i32> {
         let evaluator = self.evaluator.clone();
-        positions.par_chunks(4)
+        positions
+            .par_chunks(4)
             .flat_map(|chunk| {
                 let mut eval = evaluator.clone();
                 Self::simd_evaluate_chunk_static(&mut eval, chunk)
@@ -176,25 +184,32 @@ impl ParallelEvaluator {
             .collect()
     }
 
-    fn simd_evaluate_chunk_static(evaluator: &mut OptimizedEvaluator, chunk: &[Position]) -> Vec<i32> {
+    fn simd_evaluate_chunk_static(
+        evaluator: &mut OptimizedEvaluator,
+        chunk: &[Position],
+    ) -> Vec<i32> {
         // For simplicity in this case, just evaluate sequentially
         // The SIMD optimizations are better done inside the evaluator itself
-        chunk.iter()
-            .map(|pos| evaluator.evaluate(pos))
-            .collect()
+        chunk.iter().map(|pos| evaluator.evaluate(pos)).collect()
     }
 
     #[allow(dead_code)]
-    fn simd_evaluate_4_positions(&self, piece_counts: &[[i32; 12]], positional_features: &[[i32; 64]]) -> Vec<i32> {
+    fn simd_evaluate_4_positions(
+        &self,
+        piece_counts: &[[i32; 12]],
+        positional_features: &[[i32; 64]],
+    ) -> Vec<i32> {
         // SIMD evaluation of 4 positions simultaneously
         let mut results = Vec::with_capacity(4);
 
         // Material evaluation using SIMD
-        let material_weights = [100, 320, 330, 500, 900, 20000, -100, -320, -330, -500, -900, -20000]; // Piece values
-        
+        let material_weights = [
+            100, 320, 330, 500, 900, 20000, -100, -320, -330, -500, -900, -20000,
+        ]; // Piece values
+
         for i in 0..piece_counts.len() {
             let mut score = 0;
-            
+
             // SIMD material calculation (would use actual SIMD instructions in production)
             for (j, &count) in piece_counts[i].iter().enumerate() {
                 score += count * material_weights[j];
@@ -202,7 +217,7 @@ impl ParallelEvaluator {
 
             // Add positional evaluation
             score += positional_features[i].iter().sum::<i32>() / 10;
-            
+
             results.push(score);
         }
 
@@ -266,10 +281,11 @@ impl ParallelSearchEngine {
         }
 
         // Divide moves among threads
-        let moves_per_thread = (legal_moves.len() + self.config.num_threads - 1) / self.config.num_threads;
+        let moves_per_thread = legal_moves.len().div_ceil(self.config.num_threads);
         let move_chunks: Vec<_> = legal_moves.chunks(moves_per_thread).collect();
 
-        let results: Vec<_> = move_chunks.par_iter()
+        let results: Vec<_> = move_chunks
+            .par_iter()
             .enumerate()
             .map(|(thread_id, moves)| {
                 self.search_thread(position, moves, depth, thread_id, shared_data.clone())
@@ -292,12 +308,12 @@ impl ParallelSearchEngine {
     }
 
     fn search_thread(
-        &self, 
-        position: &Position, 
-        moves: &[Move], 
+        &self,
+        position: &Position,
+        moves: &[Move],
         depth: u8,
         thread_id: usize,
-        shared_data: SharedSearchData
+        shared_data: SharedSearchData,
     ) -> (Option<Move>, i32, u64) {
         let mut local_nodes = 0;
         let mut best_move = None;
@@ -317,13 +333,13 @@ impl ParallelSearchEngine {
             }
 
             let evaluation = self.alpha_beta_search(
-                &new_position, 
-                thread_depth.saturating_sub(1), 
-                i32::MIN, 
+                &new_position,
+                thread_depth.saturating_sub(1),
+                i32::MIN,
                 i32::MAX,
-                &shared_data
+                &shared_data,
             );
-            
+
             local_nodes += 1;
 
             if evaluation > best_evaluation {
@@ -385,7 +401,13 @@ impl ParallelSearchEngine {
             // Use saturating_neg to avoid overflow when negating i32::MIN
             let next_alpha = beta.saturating_neg();
             let next_beta = best_score.saturating_neg();
-            let score = -self.alpha_beta_search(&new_position, depth - 1, next_alpha, next_beta, shared_data);
+            let score = -self.alpha_beta_search(
+                &new_position,
+                depth - 1,
+                next_alpha,
+                next_beta,
+                shared_data,
+            );
 
             if score > best_score {
                 best_score = score;
@@ -399,12 +421,15 @@ impl ParallelSearchEngine {
 
         // Store in transposition table (with lock)
         if let Ok(mut tt) = shared_data.transposition_table.try_lock() {
-            tt.insert(zobrist, TranspositionEntry {
-                zobrist_hash: zobrist,
-                depth,
-                evaluation: best_score,
-                best_move,
-            });
+            tt.insert(
+                zobrist,
+                TranspositionEntry {
+                    zobrist_hash: zobrist,
+                    depth,
+                    evaluation: best_score,
+                    best_move,
+                },
+            );
         }
 
         best_score
@@ -490,12 +515,13 @@ impl ParallelUtils {
         }
 
         let legal_moves = move_generator.generate_legal_moves(position);
-        
+
         if depth == 1 {
             return legal_moves.len() as u64;
         }
 
-        legal_moves.par_iter()
+        legal_moves
+            .par_iter()
             .map(|&move_item| {
                 let mut new_position = position.clone();
                 if new_position.make_move(move_item).is_ok() {
@@ -513,7 +539,7 @@ impl ParallelUtils {
         }
 
         let legal_moves = move_generator.generate_legal_moves(position);
-        
+
         if depth == 1 {
             return legal_moves.len() as u64;
         }
@@ -525,7 +551,7 @@ impl ParallelUtils {
                 count += Self::sequential_perft(&new_position, depth - 1, move_generator);
             }
         }
-        
+
         count
     }
 }

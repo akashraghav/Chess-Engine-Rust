@@ -2,23 +2,26 @@
 // Modular, well-organized chess engine implementation
 
 pub mod board;
-pub mod pieces;
-pub mod moves;
-pub mod game;
-pub mod search;
-pub mod evaluation;
-pub mod utils;
 pub mod error;
+pub mod evaluation;
+pub mod game;
+pub mod moves;
+pub mod pieces;
+pub mod search;
+pub mod utils;
 
 // Re-export commonly used types
-pub use board::{Bitboard, Position, UndoInfo, Square};
-pub use pieces::{Color, Piece, PieceType};
-pub use moves::{Move, MoveType, MoveGenerator};
-pub use game::{GameState, CastlingRights, GameResult};
-pub use search::{SearchEngine, SearchConfig, SearchResult, ParallelConfig, ParallelSearchEngine};
-pub use evaluation::{Evaluator, OptimizedEvaluator, EvaluationCache, GamePhase};
-pub use utils::{OptimizedBitboard, SimdBitboard, MemoryManager, TranspositionTable, MovePool, OptimizedMoveList, MemoryConfig, MemoryStats};
+pub use board::{Bitboard, Position, Square, UndoInfo};
 pub use error::{ChessError, Result};
+pub use evaluation::{EvaluationCache, Evaluator, GamePhase, OptimizedEvaluator};
+pub use game::{CastlingRights, GameResult, GameState};
+pub use moves::{Move, MoveGenerator, MoveType};
+pub use pieces::{Color, Piece, PieceType};
+pub use search::{ParallelConfig, ParallelSearchEngine, SearchConfig, SearchEngine, SearchResult};
+pub use utils::{
+    MemoryConfig, MemoryManager, MemoryStats, MovePool, OptimizedBitboard, OptimizedMoveList,
+    SimdBitboard, TranspositionTable,
+};
 
 #[cfg(test)]
 mod tests {

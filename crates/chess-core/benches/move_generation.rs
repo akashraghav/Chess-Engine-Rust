@@ -1,18 +1,18 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
-use chess_core::{
-    GameState, MoveGenerator, Square, PieceType, Color, Move
-};
+use chess_core::{Color, GameState, Move, MoveGenerator, PieceType, Square};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 
 // Test positions from different game phases
 const STARTING_POSITION: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 const MIDDLE_GAME_1: &str = "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1";
 const MIDDLE_GAME_2: &str = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8";
-const MIDDLE_GAME_COMPLEX: &str = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10";
+const MIDDLE_GAME_COMPLEX: &str =
+    "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10";
 const ENDGAME_KQK: &str = "8/8/8/8/8/8/4K3/k2Q4 w - - 0 1";
 const ENDGAME_ROOK: &str = "8/8/8/8/8/8/R7/K6k w - - 0 1";
 const ENDGAME_PAWN: &str = "8/8/8/8/8/8/P7/K6k w - - 0 1";
 const ENDGAME_BISHOPS: &str = "8/8/8/8/8/2B5/1B6/K6k w - - 0 1";
-const TACTICAL_POSITION: &str = "r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 4";
+const TACTICAL_POSITION: &str =
+    "r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 4";
 const PROMOTION_POSITION: &str = "8/P1P5/8/8/8/8/p1p5/8 w - - 0 1";
 
 // Fast move generator (current implementation)
@@ -78,9 +78,15 @@ impl SlowMoveGenerator {
                             };
 
                             if to.rank() == promotion_rank {
-                                for piece_type in [PieceType::Queen, PieceType::Rook, PieceType::Bishop, PieceType::Knight] {
+                                for piece_type in [
+                                    PieceType::Queen,
+                                    PieceType::Rook,
+                                    PieceType::Bishop,
+                                    PieceType::Knight,
+                                ] {
                                     let promo_move = Move::promotion(from, to, piece_type);
-                                    let promo_capture = Move::promotion_capture(from, to, piece_type);
+                                    let promo_capture =
+                                        Move::promotion_capture(from, to, piece_type);
 
                                     if self.is_move_legal(game_state, promo_move) {
                                         moves.push(promo_move);
@@ -131,8 +137,8 @@ impl SlowMoveGenerator {
     fn is_move_legal(&self, game_state: &GameState, mv: Move) -> bool {
         // Test if a move is legal by trying to make it
         let mut test_state = game_state.clone();
-        test_state.position.make_move(mv).is_ok() &&
-        !test_state.is_in_check(game_state.position.side_to_move)
+        test_state.position.make_move(mv).is_ok()
+            && !test_state.is_in_check(game_state.position.side_to_move)
     }
 }
 
@@ -239,7 +245,10 @@ fn benchmark_piece_specific(c: &mut Criterion) {
 
     // Create positions that emphasize specific pieces
     let positions = [
-        ("pawn_heavy", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
+        (
+            "pawn_heavy",
+            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        ),
         ("knight_heavy", "n1n1k1n1/8/8/8/8/8/8/N1N1K1N1 w - - 0 1"),
         ("bishop_heavy", "b1b1k1b1/8/8/8/8/8/8/B1B1K1B1 w - - 0 1"),
         ("rook_heavy", "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1"),
@@ -268,7 +277,10 @@ fn benchmark_special_moves(c: &mut Criterion) {
 
     let positions = [
         ("castling", "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1"),
-        ("en_passant", "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3"),
+        (
+            "en_passant",
+            "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3",
+        ),
         ("promotion", PROMOTION_POSITION),
         ("tactical", TACTICAL_POSITION),
     ];
@@ -383,9 +395,8 @@ fn benchmark_memory_pressure(c: &mut Criterion) {
 
     group.bench_function("many_generators", |b| {
         b.iter(|| {
-            let generators: Vec<FastMoveGenerator> = (0..100)
-                .map(|_| FastMoveGenerator::new())
-                .collect();
+            let generators: Vec<FastMoveGenerator> =
+                (0..100).map(|_| FastMoveGenerator::new()).collect();
 
             let mut total_moves = 0;
             for gen in generators.iter() {

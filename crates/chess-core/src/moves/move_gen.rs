@@ -22,7 +22,11 @@ pub struct Move {
 impl Move {
     #[inline(always)]
     pub const fn new(from: Square, to: Square, move_type: MoveType) -> Self {
-        Move { from, to, move_type }
+        Move {
+            from,
+            to,
+            move_type,
+        }
     }
 
     #[inline(always)]
@@ -57,12 +61,18 @@ impl Move {
 
     #[inline]
     pub const fn is_capture(self) -> bool {
-        matches!(self.move_type, MoveType::Capture | MoveType::EnPassant | MoveType::PromotionCapture { .. })
+        matches!(
+            self.move_type,
+            MoveType::Capture | MoveType::EnPassant | MoveType::PromotionCapture { .. }
+        )
     }
 
     #[inline]
     pub const fn is_promotion(self) -> bool {
-        matches!(self.move_type, MoveType::Promotion { .. } | MoveType::PromotionCapture { .. })
+        matches!(
+            self.move_type,
+            MoveType::Promotion { .. } | MoveType::PromotionCapture { .. }
+        )
     }
 
     #[inline]
@@ -105,7 +115,10 @@ impl std::str::FromStr for Move {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s.len() < 4 || s.len() > 5 {
-            return Err(crate::ChessError::ParseError(format!("Invalid move format: {}", s)));
+            return Err(crate::ChessError::ParseError(format!(
+                "Invalid move format: {}",
+                s
+            )));
         }
 
         let from_str = &s[0..2];
@@ -123,7 +136,12 @@ impl std::str::FromStr for Move {
                 'r' => PieceType::Rook,
                 'b' => PieceType::Bishop,
                 'n' => PieceType::Knight,
-                _ => return Err(crate::ChessError::ParseError(format!("Invalid promotion piece: {}", promotion_char))),
+                _ => {
+                    return Err(crate::ChessError::ParseError(format!(
+                        "Invalid promotion piece: {}",
+                        promotion_char
+                    )))
+                }
             };
             Ok(Move::promotion(from, to, piece))
         }
@@ -154,8 +172,10 @@ impl MoveGenerator {
 
             self.king_attacks[square_idx] = self.generate_king_attacks(square);
             self.knight_attacks[square_idx] = self.generate_knight_attacks(square);
-            self.pawn_attacks[Color::White.index()][square_idx] = self.generate_pawn_attacks(square, Color::White);
-            self.pawn_attacks[Color::Black.index()][square_idx] = self.generate_pawn_attacks(square, Color::Black);
+            self.pawn_attacks[Color::White.index()][square_idx] =
+                self.generate_pawn_attacks(square, Color::White);
+            self.pawn_attacks[Color::Black.index()][square_idx] =
+                self.generate_pawn_attacks(square, Color::Black);
         }
     }
 
@@ -218,10 +238,10 @@ impl MoveGenerator {
     pub fn rook_attacks(&self, square: Square, occupied: Bitboard) -> Bitboard {
         let mut attacks = Bitboard::EMPTY;
 
-        attacks |= self.ray_attacks(square, occupied, 8, 7 - square.rank());    // Up
-        attacks |= self.ray_attacks(square, occupied, -8, square.rank());       // Down
-        attacks |= self.ray_attacks(square, occupied, 1, 7 - square.file());   // Right
-        attacks |= self.ray_attacks(square, occupied, -1, square.file());       // Left
+        attacks |= self.ray_attacks(square, occupied, 8, 7 - square.rank()); // Up
+        attacks |= self.ray_attacks(square, occupied, -8, square.rank()); // Down
+        attacks |= self.ray_attacks(square, occupied, 1, 7 - square.file()); // Right
+        attacks |= self.ray_attacks(square, occupied, -1, square.file()); // Left
 
         attacks
     }
@@ -243,13 +263,19 @@ impl MoveGenerator {
         self.rook_attacks(square, occupied) | self.bishop_attacks(square, occupied)
     }
 
-    fn ray_attacks(&self, square: Square, occupied: Bitboard, delta: i8, max_distance: u8) -> Bitboard {
+    fn ray_attacks(
+        &self,
+        square: Square,
+        occupied: Bitboard,
+        delta: i8,
+        max_distance: u8,
+    ) -> Bitboard {
         let mut attacks = Bitboard::EMPTY;
         let mut current_square = square.index() as i8;
 
         for _ in 0..max_distance {
             current_square += delta;
-            if current_square < 0 || current_square >= 64 {
+            if !(0..64).contains(&current_square) {
                 break;
             }
 
@@ -264,7 +290,13 @@ impl MoveGenerator {
         attacks
     }
 
-    pub fn generate_pawn_moves(&self, square: Square, color: Color, occupied: Bitboard, enemy_pieces: Bitboard) -> Vec<Move> {
+    pub fn generate_pawn_moves(
+        &self,
+        square: Square,
+        color: Color,
+        occupied: Bitboard,
+        enemy_pieces: Bitboard,
+    ) -> Vec<Move> {
         let mut moves = Vec::new();
         let _square_bb = square.bitboard();
 
@@ -285,7 +317,8 @@ impl MoveGenerator {
                     moves.push(Move::normal(square, forward));
 
                     if square.rank() == start_rank {
-                        let double_forward = Square::new((forward.index() as i8 + forward_direction) as u8);
+                        let double_forward =
+                            Square::new((forward.index() as i8 + forward_direction) as u8);
                         if let Some(double) = double_forward {
                             if occupied & double.bitboard() == Bitboard::EMPTY {
                                 moves.push(Move::normal(square, double));
@@ -301,10 +334,26 @@ impl MoveGenerator {
             let target_square = Square::from(target_square_idx);
             if enemy_pieces & target_square.bitboard() != Bitboard::EMPTY {
                 if target_square.rank() == promotion_rank {
-                    moves.push(Move::promotion_capture(square, target_square, PieceType::Queen));
-                    moves.push(Move::promotion_capture(square, target_square, PieceType::Rook));
-                    moves.push(Move::promotion_capture(square, target_square, PieceType::Bishop));
-                    moves.push(Move::promotion_capture(square, target_square, PieceType::Knight));
+                    moves.push(Move::promotion_capture(
+                        square,
+                        target_square,
+                        PieceType::Queen,
+                    ));
+                    moves.push(Move::promotion_capture(
+                        square,
+                        target_square,
+                        PieceType::Rook,
+                    ));
+                    moves.push(Move::promotion_capture(
+                        square,
+                        target_square,
+                        PieceType::Bishop,
+                    ));
+                    moves.push(Move::promotion_capture(
+                        square,
+                        target_square,
+                        PieceType::Knight,
+                    ));
                 } else {
                     moves.push(Move::capture(square, target_square));
                 }
@@ -314,7 +363,13 @@ impl MoveGenerator {
         moves
     }
 
-    pub fn generate_piece_moves(&self, square: Square, piece_type: PieceType, occupied: Bitboard, enemy_pieces: Bitboard) -> Vec<Move> {
+    pub fn generate_piece_moves(
+        &self,
+        square: Square,
+        piece_type: PieceType,
+        occupied: Bitboard,
+        enemy_pieces: Bitboard,
+    ) -> Vec<Move> {
         let mut moves = Vec::new();
 
         let attacks = match piece_type {
@@ -338,30 +393,52 @@ impl MoveGenerator {
         moves
     }
 
-    pub fn is_square_attacked(&self, square: Square, by_color: Color, occupied: Bitboard, piece_positions: &[Bitboard; 12]) -> bool {
+    pub fn is_square_attacked(
+        &self,
+        square: Square,
+        by_color: Color,
+        occupied: Bitboard,
+        piece_positions: &[Bitboard; 12],
+    ) -> bool {
         let color_offset = by_color.index() * 6;
 
-        if self.pawn_attacks(square, by_color.opposite()) & piece_positions[color_offset + PieceType::Pawn.index()] != Bitboard::EMPTY {
+        if self.pawn_attacks(square, by_color.opposite())
+            & piece_positions[color_offset + PieceType::Pawn.index()]
+            != Bitboard::EMPTY
+        {
             return true;
         }
 
-        if self.knight_attacks(square) & piece_positions[color_offset + PieceType::Knight.index()] != Bitboard::EMPTY {
+        if self.knight_attacks(square) & piece_positions[color_offset + PieceType::Knight.index()]
+            != Bitboard::EMPTY
+        {
             return true;
         }
 
-        if self.bishop_attacks(square, occupied) & piece_positions[color_offset + PieceType::Bishop.index()] != Bitboard::EMPTY {
+        if self.bishop_attacks(square, occupied)
+            & piece_positions[color_offset + PieceType::Bishop.index()]
+            != Bitboard::EMPTY
+        {
             return true;
         }
 
-        if self.rook_attacks(square, occupied) & piece_positions[color_offset + PieceType::Rook.index()] != Bitboard::EMPTY {
+        if self.rook_attacks(square, occupied)
+            & piece_positions[color_offset + PieceType::Rook.index()]
+            != Bitboard::EMPTY
+        {
             return true;
         }
 
-        if self.queen_attacks(square, occupied) & piece_positions[color_offset + PieceType::Queen.index()] != Bitboard::EMPTY {
+        if self.queen_attacks(square, occupied)
+            & piece_positions[color_offset + PieceType::Queen.index()]
+            != Bitboard::EMPTY
+        {
             return true;
         }
 
-        if self.king_attacks(square) & piece_positions[color_offset + PieceType::King.index()] != Bitboard::EMPTY {
+        if self.king_attacks(square) & piece_positions[color_offset + PieceType::King.index()]
+            != Bitboard::EMPTY
+        {
             return true;
         }
 
@@ -375,7 +452,7 @@ impl MoveGenerator {
         let occupied = position.all_occupied;
         let _own_pieces = position.occupied[side_to_move.index()];
         let enemy_pieces = position.occupied[side_to_move.opposite().index()];
-        
+
         // Generate moves for each piece
         for square_idx in 0..64 {
             let square = Square::new(square_idx as u8).unwrap();
@@ -383,16 +460,26 @@ impl MoveGenerator {
                 if piece.color == side_to_move {
                     match piece.piece_type {
                         PieceType::Pawn => {
-                            moves.extend(self.generate_pawn_moves(square, piece.color, occupied, enemy_pieces));
+                            moves.extend(self.generate_pawn_moves(
+                                square,
+                                piece.color,
+                                occupied,
+                                enemy_pieces,
+                            ));
                         }
                         piece_type => {
-                            moves.extend(self.generate_piece_moves(square, piece_type, occupied, enemy_pieces));
+                            moves.extend(self.generate_piece_moves(
+                                square,
+                                piece_type,
+                                occupied,
+                                enemy_pieces,
+                            ));
                         }
                     }
                 }
             }
         }
-        
+
         // TODO: Add castling, en passant, and legal move filtering
         // For now, return pseudo-legal moves
         moves
@@ -429,8 +516,14 @@ mod tests {
     #[test]
     fn test_move_uci() {
         assert_eq!(Move::normal(Square::E2, Square::E4).to_uci(), "e2e4");
-        assert_eq!(Move::promotion(Square::E7, Square::E8, PieceType::Queen).to_uci(), "e7e8q");
-        assert_eq!(Move::promotion(Square::A7, Square::B8, PieceType::Knight).to_uci(), "a7b8n");
+        assert_eq!(
+            Move::promotion(Square::E7, Square::E8, PieceType::Queen).to_uci(),
+            "e7e8q"
+        );
+        assert_eq!(
+            Move::promotion(Square::A7, Square::B8, PieceType::Knight).to_uci(),
+            "a7b8n"
+        );
     }
 
     #[test]
@@ -454,7 +547,9 @@ mod tests {
 
         assert!(generator.king_attacks(Square::E4).is_not_empty());
         assert!(generator.knight_attacks(Square::E4).is_not_empty());
-        assert!(generator.pawn_attacks(Square::E4, Color::White).is_not_empty());
+        assert!(generator
+            .pawn_attacks(Square::E4, Color::White)
+            .is_not_empty());
     }
 
     #[test]

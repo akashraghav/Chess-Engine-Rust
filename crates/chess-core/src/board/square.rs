@@ -79,14 +79,70 @@ impl Square {
     pub const H8: Square = Square(63);
 
     pub const ALL: [Square; 64] = [
-        Square::A1, Square::B1, Square::C1, Square::D1, Square::E1, Square::F1, Square::G1, Square::H1,
-        Square::A2, Square::B2, Square::C2, Square::D2, Square::E2, Square::F2, Square::G2, Square::H2,
-        Square::A3, Square::B3, Square::C3, Square::D3, Square::E3, Square::F3, Square::G3, Square::H3,
-        Square::A4, Square::B4, Square::C4, Square::D4, Square::E4, Square::F4, Square::G4, Square::H4,
-        Square::A5, Square::B5, Square::C5, Square::D5, Square::E5, Square::F5, Square::G5, Square::H5,
-        Square::A6, Square::B6, Square::C6, Square::D6, Square::E6, Square::F6, Square::G6, Square::H6,
-        Square::A7, Square::B7, Square::C7, Square::D7, Square::E7, Square::F7, Square::G7, Square::H7,
-        Square::A8, Square::B8, Square::C8, Square::D8, Square::E8, Square::F8, Square::G8, Square::H8,
+        Square::A1,
+        Square::B1,
+        Square::C1,
+        Square::D1,
+        Square::E1,
+        Square::F1,
+        Square::G1,
+        Square::H1,
+        Square::A2,
+        Square::B2,
+        Square::C2,
+        Square::D2,
+        Square::E2,
+        Square::F2,
+        Square::G2,
+        Square::H2,
+        Square::A3,
+        Square::B3,
+        Square::C3,
+        Square::D3,
+        Square::E3,
+        Square::F3,
+        Square::G3,
+        Square::H3,
+        Square::A4,
+        Square::B4,
+        Square::C4,
+        Square::D4,
+        Square::E4,
+        Square::F4,
+        Square::G4,
+        Square::H4,
+        Square::A5,
+        Square::B5,
+        Square::C5,
+        Square::D5,
+        Square::E5,
+        Square::F5,
+        Square::G5,
+        Square::H5,
+        Square::A6,
+        Square::B6,
+        Square::C6,
+        Square::D6,
+        Square::E6,
+        Square::F6,
+        Square::G6,
+        Square::H6,
+        Square::A7,
+        Square::B7,
+        Square::C7,
+        Square::D7,
+        Square::E7,
+        Square::F7,
+        Square::G7,
+        Square::H7,
+        Square::A8,
+        Square::B8,
+        Square::C8,
+        Square::D8,
+        Square::E8,
+        Square::F8,
+        Square::G8,
+        Square::H8,
     ];
 
     #[inline]
@@ -125,8 +181,14 @@ impl Square {
     #[inline]
     pub const fn file_char(self) -> char {
         match self.file() {
-            0 => 'a', 1 => 'b', 2 => 'c', 3 => 'd',
-            4 => 'e', 5 => 'f', 6 => 'g', 7 => 'h',
+            0 => 'a',
+            1 => 'b',
+            2 => 'c',
+            3 => 'd',
+            4 => 'e',
+            5 => 'f',
+            6 => 'g',
+            7 => 'h',
             _ => '?',
         }
     }
@@ -134,8 +196,14 @@ impl Square {
     #[inline]
     pub const fn rank_char(self) -> char {
         match self.rank() {
-            0 => '1', 1 => '2', 2 => '3', 3 => '4',
-            4 => '5', 5 => '6', 6 => '7', 7 => '8',
+            0 => '1',
+            1 => '2',
+            2 => '3',
+            3 => '4',
+            4 => '5',
+            5 => '6',
+            6 => '7',
+            7 => '8',
             _ => '?',
         }
     }
@@ -157,7 +225,11 @@ impl Square {
         } else {
             other.rank() - self.rank()
         };
-        if file_diff > rank_diff { file_diff } else { rank_diff }
+        if file_diff > rank_diff {
+            file_diff
+        } else {
+            rank_diff
+        }
     }
 
     #[inline]
@@ -251,47 +323,54 @@ impl Square {
 
     pub fn knight_moves(self) -> impl Iterator<Item = Square> {
         const KNIGHT_DELTAS: [(i8, i8); 8] = [
-            (-2, -1), (-2, 1), (-1, -2), (-1, 2),
-            (1, -2), (1, 2), (2, -1), (2, 1)
+            (-2, -1),
+            (-2, 1),
+            (-1, -2),
+            (-1, 2),
+            (1, -2),
+            (1, 2),
+            (2, -1),
+            (2, 1),
         ];
 
         let file = self.file() as i8;
         let rank = self.rank() as i8;
 
-        KNIGHT_DELTAS
-            .iter()
-            .filter_map(move |(df, dr)| {
-                let new_file = file + df;
-                let new_rank = rank + dr;
-                if new_file >= 0 && new_file < 8 && new_rank >= 0 && new_rank < 8 {
-                    Square::from_file_rank(new_file as u8, new_rank as u8)
-                } else {
-                    None
-                }
-            })
+        KNIGHT_DELTAS.iter().filter_map(move |(df, dr)| {
+            let new_file = file + df;
+            let new_rank = rank + dr;
+            if (0..8).contains(&new_file) && (0..8).contains(&new_rank) {
+                Square::from_file_rank(new_file as u8, new_rank as u8)
+            } else {
+                None
+            }
+        })
     }
 
     pub fn king_moves(self) -> impl Iterator<Item = Square> {
         const KING_DELTAS: [(i8, i8); 8] = [
-            (-1, -1), (-1, 0), (-1, 1),
-            (0, -1),           (0, 1),
-            (1, -1),  (1, 0),  (1, 1)
+            (-1, -1),
+            (-1, 0),
+            (-1, 1),
+            (0, -1),
+            (0, 1),
+            (1, -1),
+            (1, 0),
+            (1, 1),
         ];
 
         let file = self.file() as i8;
         let rank = self.rank() as i8;
 
-        KING_DELTAS
-            .iter()
-            .filter_map(move |(df, dr)| {
-                let new_file = file + df;
-                let new_rank = rank + dr;
-                if new_file >= 0 && new_file < 8 && new_rank >= 0 && new_rank < 8 {
-                    Square::from_file_rank(new_file as u8, new_rank as u8)
-                } else {
-                    None
-                }
-            })
+        KING_DELTAS.iter().filter_map(move |(df, dr)| {
+            let new_file = file + df;
+            let new_rank = rank + dr;
+            if (0..8).contains(&new_file) && (0..8).contains(&new_rank) {
+                Square::from_file_rank(new_file as u8, new_rank as u8)
+            } else {
+                None
+            }
+        })
     }
 }
 
@@ -306,7 +385,10 @@ impl std::str::FromStr for Square {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s.len() != 2 {
-            return Err(crate::ChessError::ParseError(format!("Invalid square: {}", s)));
+            return Err(crate::ChessError::ParseError(format!(
+                "Invalid square: {}",
+                s
+            )));
         }
 
         let mut chars = s.chars();
@@ -314,15 +396,37 @@ impl std::str::FromStr for Square {
         let rank_char = chars.next().unwrap();
 
         let file = match file_char {
-            'a' => 0, 'b' => 1, 'c' => 2, 'd' => 3,
-            'e' => 4, 'f' => 5, 'g' => 6, 'h' => 7,
-            _ => return Err(crate::ChessError::ParseError(format!("Invalid file: {}", file_char))),
+            'a' => 0,
+            'b' => 1,
+            'c' => 2,
+            'd' => 3,
+            'e' => 4,
+            'f' => 5,
+            'g' => 6,
+            'h' => 7,
+            _ => {
+                return Err(crate::ChessError::ParseError(format!(
+                    "Invalid file: {}",
+                    file_char
+                )))
+            }
         };
 
         let rank = match rank_char {
-            '1' => 0, '2' => 1, '3' => 2, '4' => 3,
-            '5' => 4, '6' => 5, '7' => 6, '8' => 7,
-            _ => return Err(crate::ChessError::ParseError(format!("Invalid rank: {}", rank_char))),
+            '1' => 0,
+            '2' => 1,
+            '3' => 2,
+            '4' => 3,
+            '5' => 4,
+            '6' => 5,
+            '7' => 6,
+            '8' => 7,
+            _ => {
+                return Err(crate::ChessError::ParseError(format!(
+                    "Invalid rank: {}",
+                    rank_char
+                )))
+            }
         };
 
         Ok(Square::from_file_rank(file, rank).unwrap())

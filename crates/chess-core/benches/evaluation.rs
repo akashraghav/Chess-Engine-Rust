@@ -1,5 +1,5 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
-use chess_core::{Bitboard, Square, MoveGenerator, Color};
+use chess_core::{Bitboard, Color, MoveGenerator, Square};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 
 fn benchmark_bitboard_operations(c: &mut Criterion) {
     let mut group = c.benchmark_group("bitboard_operations");
@@ -328,8 +328,14 @@ fn benchmark_bitboard_constants(c: &mut Criterion) {
     group.bench_function("rank_masks", |b| {
         b.iter(|| {
             let ranks = [
-                Bitboard::RANK_1, Bitboard::RANK_2, Bitboard::RANK_3, Bitboard::RANK_4,
-                Bitboard::RANK_5, Bitboard::RANK_6, Bitboard::RANK_7, Bitboard::RANK_8,
+                Bitboard::RANK_1,
+                Bitboard::RANK_2,
+                Bitboard::RANK_3,
+                Bitboard::RANK_4,
+                Bitboard::RANK_5,
+                Bitboard::RANK_6,
+                Bitboard::RANK_7,
+                Bitboard::RANK_8,
             ];
             black_box(ranks)
         })
@@ -338,8 +344,14 @@ fn benchmark_bitboard_constants(c: &mut Criterion) {
     group.bench_function("file_masks", |b| {
         b.iter(|| {
             let files = [
-                Bitboard::FILE_A, Bitboard::FILE_B, Bitboard::FILE_C, Bitboard::FILE_D,
-                Bitboard::FILE_E, Bitboard::FILE_F, Bitboard::FILE_G, Bitboard::FILE_H,
+                Bitboard::FILE_A,
+                Bitboard::FILE_B,
+                Bitboard::FILE_C,
+                Bitboard::FILE_D,
+                Bitboard::FILE_E,
+                Bitboard::FILE_F,
+                Bitboard::FILE_G,
+                Bitboard::FILE_H,
             ];
             black_box(files)
         })
@@ -371,12 +383,7 @@ fn benchmark_complex_bitboard_operations(c: &mut Criterion) {
 
     group.bench_function("multiple_shifts", |b| {
         b.iter(|| {
-            let result = black_box(
-                bb1.shift_north()
-                    .shift_east()
-                    .shift_south()
-                    .shift_west()
-            );
+            let result = black_box(bb1.shift_north().shift_east().shift_south().shift_west());
             black_box(result)
         })
     });
@@ -384,9 +391,8 @@ fn benchmark_complex_bitboard_operations(c: &mut Criterion) {
     group.bench_function("complex_pattern", |b| {
         b.iter(|| {
             let pattern = black_box(
-                (bb1 | bb2.shift_north()) &
-                (!bb3.shift_east()) |
-                (bb1.shift_south() & bb2.shift_west())
+                (bb1 | bb2.shift_north()) & (!bb3.shift_east())
+                    | (bb1.shift_south() & bb2.shift_west()),
             );
             black_box(pattern)
         })

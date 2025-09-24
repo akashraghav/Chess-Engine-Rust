@@ -1,4 +1,4 @@
-pub mod state;
 pub mod rules;
+pub mod state;
 
-pub use state::{GameState, CastlingRights, GameResult};
+pub use state::{CastlingRights, GameResult, GameState};

@@ -1,4 +1,4 @@
-use chess_core::{GameState, Color, Position, SearchEngine, SearchConfig};
+use chess_core::{Color, GameState, Position, SearchConfig, SearchEngine};
 
 #[test]
 fn test_restructured_chess_engine() {
@@ -23,10 +23,10 @@ fn test_restructured_chess_engine() {
 #[test]
 fn test_modular_imports() {
     // Test that the modular structure allows clean imports
-    use chess_core::board::{Position, Bitboard, Square};
-    use chess_core::pieces::{Color, Piece, PieceType};
-    use chess_core::moves::MoveGenerator;
+    use chess_core::board::{Bitboard, Position, Square};
     use chess_core::game::GameState;
+    use chess_core::moves::MoveGenerator;
+    use chess_core::pieces::{Color, Piece, PieceType};
 
     let position = Position::starting_position();
     let color = Color::White;
@@ -62,7 +62,10 @@ fn test_clean_architecture_principles() {
 
     // Pieces module should handle only piece logic
     let _color = chess_core::pieces::Color::White;
-    let _piece = chess_core::pieces::Piece::new(chess_core::pieces::PieceType::King, chess_core::pieces::Color::White);
+    let _piece = chess_core::pieces::Piece::new(
+        chess_core::pieces::PieceType::King,
+        chess_core::pieces::Color::White,
+    );
 
     // Moves module should handle only move generation and validation
     let _move_gen = chess_core::moves::MoveGenerator::new();
@@ -71,7 +74,8 @@ fn test_clean_architecture_principles() {
     let _game_state = chess_core::game::GameState::new();
 
     // Search module should handle only search algorithms
-    let _search_engine = chess_core::search::SearchEngine::new(chess_core::search::SearchConfig::default());
+    let _search_engine =
+        chess_core::search::SearchEngine::new(chess_core::search::SearchConfig::default());
 
     // This test passing means the modular structure is working correctly
 }

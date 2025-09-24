@@ -116,7 +116,10 @@ impl std::str::FromStr for PieceType {
             Some('R') => Ok(PieceType::Rook),
             Some('Q') => Ok(PieceType::Queen),
             Some('K') => Ok(PieceType::King),
-            _ => Err(crate::ChessError::ParseError(format!("Invalid piece type: {}", s))),
+            _ => Err(crate::ChessError::ParseError(format!(
+                "Invalid piece type: {}",
+                s
+            ))),
         }
     }
 }
@@ -206,7 +209,10 @@ impl Piece {
         let color_index = index / 6;
         let piece_index = index % 6;
 
-        match (Color::from_index(color_index), PieceType::from_index(piece_index)) {
+        match (
+            Color::from_index(color_index),
+            PieceType::from_index(piece_index),
+        ) {
             (Some(color), Some(piece_type)) => Some(Piece::new(piece_type, color)),
             _ => None,
         }
@@ -224,7 +230,7 @@ impl Piece {
                 'Q' => 'q',
                 'K' => 'k',
                 _ => base_symbol,
-            }
+            },
         }
     }
 
@@ -250,7 +256,10 @@ impl std::str::FromStr for Piece {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s.len() != 1 {
-            return Err(crate::ChessError::ParseError(format!("Invalid piece: {}", s)));
+            return Err(crate::ChessError::ParseError(format!(
+                "Invalid piece: {}",
+                s
+            )));
         }
 
         let ch = s.chars().next().unwrap();
@@ -267,7 +276,12 @@ impl std::str::FromStr for Piece {
             'r' => (PieceType::Rook, Color::Black),
             'q' => (PieceType::Queen, Color::Black),
             'k' => (PieceType::King, Color::Black),
-            _ => return Err(crate::ChessError::ParseError(format!("Invalid piece: {}", s))),
+            _ => {
+                return Err(crate::ChessError::ParseError(format!(
+                    "Invalid piece: {}",
+                    s
+                )))
+            }
         };
 
         Ok(Piece::new(piece_type, color))

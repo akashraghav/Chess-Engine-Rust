@@ -1,9 +1,9 @@
 // Advanced search algorithms for chess engine
 // Implements alpha-beta pruning, iterative deepening, and other modern search techniques
 
-use crate::{Position, Move, Color, PieceType, OptimizedEvaluator, MoveGenerator};
-use std::time::{Duration, Instant};
+use crate::{Color, Move, MoveGenerator, OptimizedEvaluator, PieceType, Position};
 use std::collections::HashMap;
+use std::time::{Duration, Instant};
 
 pub const MATE_VALUE: i32 = 32000;
 pub const MAX_DEPTH: u8 = 64;
@@ -144,11 +144,17 @@ impl SearchEngine {
         best_result
     }
 
-    fn aspiration_search(&mut self, position: &Position, depth: u8, mut alpha: i32, mut beta: i32) -> SearchResult {
+    fn aspiration_search(
+        &mut self,
+        position: &Position,
+        depth: u8,
+        mut alpha: i32,
+        mut beta: i32,
+    ) -> SearchResult {
         let mut attempts = 0;
         loop {
             let result = self.alpha_beta_root(position, depth, alpha, beta);
-            
+
             if result.evaluation > alpha && result.evaluation < beta {
                 return result;
             }
@@ -169,12 +175,18 @@ impl SearchEngine {
         }
     }
 
-    fn alpha_beta_root(&mut self, position: &Position, depth: u8, mut alpha: i32, beta: i32) -> SearchResult {
+    fn alpha_beta_root(
+        &mut self,
+        position: &Position,
+        depth: u8,
+        mut alpha: i32,
+        beta: i32,
+    ) -> SearchResult {
         let mut best_move = None;
         let mut pv = [None; 16];
-        
+
         let legal_moves = self.generate_and_sort_moves(position, depth, None);
-        
+
         for (i, move_data) in legal_moves.iter().enumerate() {
             if self.should_stop() {
                 break;
@@ -190,18 +202,20 @@ impl SearchEngine {
                 -self.alpha_beta(&new_position, depth - 1, -beta, -alpha, false)
             } else {
                 // Late move reductions
-                let reduction = if self.config.use_late_move_reductions 
-                    && depth >= 3 
-                    && i >= 4 
-                    && !move_data.0.is_capture() 
-                    && !self.is_check(&new_position) {
+                let reduction = if self.config.use_late_move_reductions
+                    && depth >= 3
+                    && i >= 4
+                    && !move_data.0.is_capture()
+                    && !self.is_check(&new_position)
+                {
                     1
                 } else {
                     0
                 };
 
                 let reduced_depth = (depth - 1).saturating_sub(reduction);
-                let mut score = -self.alpha_beta(&new_position, reduced_depth, -alpha - 1, -alpha, false);
+                let mut score =
+                    -self.alpha_beta(&new_position, reduced_depth, -alpha - 1, -alpha, false);
 
                 // Re-search if reduced search failed high
                 if reduction > 0 && score > alpha {
@@ -238,7 +252,14 @@ impl SearchEngine {
     }
 
     /// Main alpha-beta search with pruning techniques
-    fn alpha_beta(&mut self, position: &Position, depth: u8, mut alpha: i32, mut beta: i32, null_move: bool) -> i32 {
+    fn alpha_beta(
+        &mut self,
+        position: &Position,
+        depth: u8,
+        mut alpha: i32,
+        mut beta: i32,
+        null_move: bool,
+    ) -> i32 {
         self.nodes_searched += 1;
 
         if self.should_stop() {
@@ -284,15 +305,15 @@ impl SearchEngine {
 
         // Null move pruning
         if self.config.use_null_move_pruning
-            && !null_move 
+            && !null_move
             && !in_check
             && depth >= 3
             && static_eval >= beta
-            && self.has_non_pawn_pieces(position) {
-            
+            && self.has_non_pawn_pieces(position)
+        {
             let mut null_position = position.clone();
             null_position.make_null_move();
-            
+
             let null_score = -self.alpha_beta(&null_position, depth - 3, -beta, -beta + 1, true);
             if null_score >= beta {
                 return beta; // Fail high
@@ -303,13 +324,19 @@ impl SearchEngine {
         if self.config.use_futility_pruning
             && !in_check
             && depth <= 3
-            && static_eval + 200 * depth as i32 <= alpha {
+            && static_eval + 200 * depth as i32 <= alpha
+        {
             return static_eval;
         }
 
-        let legal_moves = self.generate_and_sort_moves(position, depth, 
-            self.transposition_table.get(&zobrist).and_then(|e| e.best_move));
-        
+        let legal_moves = self.generate_and_sort_moves(
+            position,
+            depth,
+            self.transposition_table
+                .get(&zobrist)
+                .and_then(|e| e.best_move),
+        );
+
         if legal_moves.is_empty() {
             return if in_check {
                 -MATE_VALUE + position.halfmove_clock() as i32 // Checkmate
@@ -341,10 +368,10 @@ impl SearchEngine {
                     if !move_item.is_capture() {
                         self.store_killer_move(move_item, depth);
                     }
-                    
+
                     // Update history heuristic
                     self.update_history(move_item, position.side_to_move(), depth);
-                    
+
                     node_type = NodeType::LowerBound;
                     break; // Beta cutoff
                 }
@@ -363,7 +390,13 @@ impl SearchEngine {
     }
 
     /// Quiescence search for tactical positions
-    fn quiescence_search(&mut self, position: &Position, mut alpha: i32, beta: i32, ply: u8) -> i32 {
+    fn quiescence_search(
+        &mut self,
+        position: &Position,
+        mut alpha: i32,
+        beta: i32,
+        ply: u8,
+    ) -> i32 {
         self.nodes_searched += 1;
 
         if ply > 16 || self.should_stop() {
@@ -371,18 +404,18 @@ impl SearchEngine {
         }
 
         let static_eval = self.evaluator.evaluate(position);
-        
+
         if static_eval >= beta {
             return beta;
         }
-        
+
         if static_eval > alpha {
             alpha = static_eval;
         }
 
         // Generate only captures and checks
         let captures = self.generate_tactical_moves(position);
-        
+
         for move_item in captures {
             let mut new_position = position.clone();
             if new_position.make_move(move_item).is_err() {
@@ -402,7 +435,12 @@ impl SearchEngine {
         alpha
     }
 
-    fn generate_and_sort_moves(&self, position: &Position, depth: u8, tt_move: Option<Move>) -> Vec<(Move, i32)> {
+    fn generate_and_sort_moves(
+        &self,
+        position: &Position,
+        depth: u8,
+        tt_move: Option<Move>,
+    ) -> Vec<(Move, i32)> {
         let moves = self.move_generator.generate_legal_moves(position);
         let mut scored_moves = Vec::with_capacity(moves.len());
 
@@ -421,7 +459,13 @@ impl SearchEngine {
         self.move_generator.generate_legal_moves(position)
     }
 
-    fn score_move(&self, move_item: Move, position: &Position, depth: u8, tt_move: Option<Move>) -> i32 {
+    fn score_move(
+        &self,
+        move_item: Move,
+        position: &Position,
+        depth: u8,
+        tt_move: Option<Move>,
+    ) -> i32 {
         // Transposition table move gets highest priority
         if Some(move_item) == tt_move {
             return 10000;
@@ -433,7 +477,8 @@ impl SearchEngine {
         if move_item.is_capture() {
             if let Some(captured_piece) = position.piece_at(move_item.to) {
                 if let Some(attacker_piece) = position.piece_at(move_item.from) {
-                    score += Self::piece_value(captured_piece.piece_type) * 10 - Self::piece_value(attacker_piece.piece_type);
+                    score += Self::piece_value(captured_piece.piece_type) * 10
+                        - Self::piece_value(attacker_piece.piece_type);
                 }
             }
         }
@@ -444,7 +489,7 @@ impl SearchEngine {
         }
 
         // Killer moves
-        if depth < MAX_DEPTH as u8 {
+        if depth < MAX_DEPTH {
             for killer in &self.killer_moves[depth as usize] {
                 if *killer == Some(move_item) {
                     score += 9000;
@@ -454,7 +499,10 @@ impl SearchEngine {
         }
 
         // History heuristic
-        if let Some(&history_score) = self.history_table.get(&(move_item, position.side_to_move())) {
+        if let Some(&history_score) = self
+            .history_table
+            .get(&(move_item, position.side_to_move()))
+        {
             score += (history_score / 100) as i32;
         }
 
@@ -473,7 +521,7 @@ impl SearchEngine {
     }
 
     fn store_killer_move(&mut self, move_item: Move, depth: u8) {
-        if depth < MAX_DEPTH as u8 {
+        if depth < MAX_DEPTH {
             let killers = &mut self.killer_moves[depth as usize];
             if killers[0] != Some(move_item) {
                 killers[1] = killers[0];
@@ -487,7 +535,14 @@ impl SearchEngine {
         *entry += (depth as u32).pow(2);
     }
 
-    fn store_transposition(&mut self, zobrist: u64, depth: u8, evaluation: i32, best_move: Option<Move>, node_type: NodeType) {
+    fn store_transposition(
+        &mut self,
+        zobrist: u64,
+        depth: u8,
+        evaluation: i32,
+        best_move: Option<Move>,
+        node_type: NodeType,
+    ) {
         let entry = TranspositionEntry {
             zobrist_hash: zobrist,
             depth,
@@ -496,7 +551,7 @@ impl SearchEngine {
             node_type,
             age: self.age,
         };
-        
+
         // Simple replacement scheme - could be improved
         self.transposition_table.insert(zobrist, entry);
     }

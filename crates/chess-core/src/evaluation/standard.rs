@@ -1,4 +1,4 @@
-use crate::{GameState, Color, PieceType, Square, Bitboard};
+use crate::{Bitboard, Color, GameState, PieceType, Square};
 
 pub struct Evaluator {
     piece_square_tables: PieceSquareTables,
@@ -40,8 +40,14 @@ impl Evaluator {
         let mut score = 0;
 
         for piece_type in PieceType::ALL {
-            let white_count = game_state.position.pieces_of_type(piece_type, Color::White).count_bits() as i32;
-            let black_count = game_state.position.pieces_of_type(piece_type, Color::Black).count_bits() as i32;
+            let white_count = game_state
+                .position
+                .pieces_of_type(piece_type, Color::White)
+                .count_bits() as i32;
+            let black_count = game_state
+                .position
+                .pieces_of_type(piece_type, Color::Black)
+                .count_bits() as i32;
 
             score += (white_count - black_count) * piece_type.value();
         }
@@ -61,7 +67,7 @@ impl Evaluator {
                     Color::White => square_idx as usize,
                     Color::Black => (square_idx ^ 56) as usize, // Flip rank: XOR with 56 (7*8)
                 };
-                
+
                 let piece_score = match piece.piece_type {
                     PieceType::Pawn => self.piece_square_tables.pawn[table_idx],
                     PieceType::Knight => self.piece_square_tables.knight[table_idx],
@@ -102,10 +108,22 @@ impl Evaluator {
             if let Some(piece) = game_state.position.piece_at(square) {
                 if piece.color == color {
                     mobility += match piece.piece_type {
-                        PieceType::Knight => game_state.move_generator.knight_attacks(square).count_bits(),
-                        PieceType::Bishop => game_state.move_generator.bishop_attacks(square, game_state.position.all_pieces()).count_bits(),
-                        PieceType::Rook => game_state.move_generator.rook_attacks(square, game_state.position.all_pieces()).count_bits(),
-                        PieceType::Queen => game_state.move_generator.queen_attacks(square, game_state.position.all_pieces()).count_bits(),
+                        PieceType::Knight => game_state
+                            .move_generator
+                            .knight_attacks(square)
+                            .count_bits(),
+                        PieceType::Bishop => game_state
+                            .move_generator
+                            .bishop_attacks(square, game_state.position.all_pieces())
+                            .count_bits(),
+                        PieceType::Rook => game_state
+                            .move_generator
+                            .rook_attacks(square, game_state.position.all_pieces())
+                            .count_bits(),
+                        PieceType::Queen => game_state
+                            .move_generator
+                            .queen_attacks(square, game_state.position.all_pieces())
+                            .count_bits(),
                         _ => 0,
                     } as i32;
                 }
@@ -158,9 +176,15 @@ impl Evaluator {
                     attacks |= match piece.piece_type {
                         PieceType::Pawn => game_state.move_generator.pawn_attacks(square, color),
                         PieceType::Knight => game_state.move_generator.knight_attacks(square),
-                        PieceType::Bishop => game_state.move_generator.bishop_attacks(square, game_state.position.all_pieces()),
-                        PieceType::Rook => game_state.move_generator.rook_attacks(square, game_state.position.all_pieces()),
-                        PieceType::Queen => game_state.move_generator.queen_attacks(square, game_state.position.all_pieces()),
+                        PieceType::Bishop => game_state
+                            .move_generator
+                            .bishop_attacks(square, game_state.position.all_pieces()),
+                        PieceType::Rook => game_state
+                            .move_generator
+                            .rook_attacks(square, game_state.position.all_pieces()),
+                        PieceType::Queen => game_state
+                            .move_generator
+                            .queen_attacks(square, game_state.position.all_pieces()),
                         PieceType::King => game_state.move_generator.king_attacks(square),
                     };
                 }
@@ -170,7 +194,12 @@ impl Evaluator {
         attacks
     }
 
-    fn evaluate_pawn_shield(&self, game_state: &GameState, king_square: Square, color: Color) -> i32 {
+    fn evaluate_pawn_shield(
+        &self,
+        game_state: &GameState,
+        king_square: Square,
+        color: Color,
+    ) -> i32 {
         let mut shield_score = 0i32;
         let direction = match color {
             Color::White => 1,
@@ -179,10 +208,10 @@ impl Evaluator {
 
         for file_offset in -1..=1 {
             let file = king_square.file() as i8 + file_offset;
-            if file >= 0 && file < 8 {
+            if (0..8).contains(&file) {
                 for rank_offset in 1..=2 {
                     let rank = king_square.rank() as i8 + direction * rank_offset;
-                    if rank >= 0 && rank < 8 {
+                    if (0..8).contains(&rank) {
                         if let Some(square) = Square::from_file_rank(file as u8, rank as u8) {
                             if let Some(piece) = game_state.position.piece_at(square) {
                                 if piece.piece_type == PieceType::Pawn && piece.color == color {
@@ -295,7 +324,9 @@ impl Evaluator {
 
     fn count_passed_pawns(&self, game_state: &GameState, color: Color) -> i32 {
         let our_pawns = game_state.position.pieces_of_type(PieceType::Pawn, color);
-        let enemy_pawns = game_state.position.pieces_of_type(PieceType::Pawn, color.opposite());
+        let enemy_pawns = game_state
+            .position
+            .pieces_of_type(PieceType::Pawn, color.opposite());
         let mut passed = 0;
 
         for square_idx in our_pawns.iter() {
@@ -350,8 +381,16 @@ impl Evaluator {
     fn calculate_material(&self, game_state: &GameState, color: Color) -> i32 {
         let mut material = 0;
 
-        for piece_type in [PieceType::Queen, PieceType::Rook, PieceType::Bishop, PieceType::Knight] {
-            let count = game_state.position.pieces_of_type(piece_type, color).count_bits() as i32;
+        for piece_type in [
+            PieceType::Queen,
+            PieceType::Rook,
+            PieceType::Bishop,
+            PieceType::Knight,
+        ] {
+            let count = game_state
+                .position
+                .pieces_of_type(piece_type, color)
+                .count_bits() as i32;
             material += count * piece_type.value();
         }
 
@@ -363,74 +402,43 @@ impl PieceSquareTables {
     fn new() -> Self {
         PieceSquareTables {
             pawn: [
-                 0,  0,  0,  0,  0,  0,  0,  0,
-                50, 50, 50, 50, 50, 50, 50, 50,
-                10, 10, 20, 30, 30, 20, 10, 10,
-                 5,  5, 10, 25, 25, 10,  5,  5,
-                 0,  0,  0, 20, 20,  0,  0,  0,
-                 5, -5,-10,  0,  0,-10, -5,  5,
-                 5, 10, 10,-20,-20, 10, 10,  5,
-                 0,  0,  0,  0,  0,  0,  0,  0
+                0, 0, 0, 0, 0, 0, 0, 0, 50, 50, 50, 50, 50, 50, 50, 50, 10, 10, 20, 30, 30, 20, 10,
+                10, 5, 5, 10, 25, 25, 10, 5, 5, 0, 0, 0, 20, 20, 0, 0, 0, 5, -5, -10, 0, 0, -10,
+                -5, 5, 5, 10, 10, -20, -20, 10, 10, 5, 0, 0, 0, 0, 0, 0, 0, 0,
             ],
             knight: [
-                -50,-40,-30,-30,-30,-30,-40,-50,
-                -40,-20,  0,  0,  0,  0,-20,-40,
-                -30,  0, 10, 15, 15, 10,  0,-30,
-                -30,  5, 15, 20, 20, 15,  5,-30,
-                -30,  0, 15, 20, 20, 15,  0,-30,
-                -30,  5, 10, 15, 15, 10,  5,-30,
-                -40,-20,  0,  5,  5,  0,-20,-40,
-                -50,-40,-30,-30,-30,-30,-40,-50,
+                -50, -40, -30, -30, -30, -30, -40, -50, -40, -20, 0, 0, 0, 0, -20, -40, -30, 0, 10,
+                15, 15, 10, 0, -30, -30, 5, 15, 20, 20, 15, 5, -30, -30, 0, 15, 20, 20, 15, 0, -30,
+                -30, 5, 10, 15, 15, 10, 5, -30, -40, -20, 0, 5, 5, 0, -20, -40, -50, -40, -30, -30,
+                -30, -30, -40, -50,
             ],
             bishop: [
-                -20,-10,-10,-10,-10,-10,-10,-20,
-                -10,  0,  0,  0,  0,  0,  0,-10,
-                -10,  0,  5, 10, 10,  5,  0,-10,
-                -10,  5,  5, 10, 10,  5,  5,-10,
-                -10,  0, 10, 10, 10, 10,  0,-10,
-                -10, 10, 10, 10, 10, 10, 10,-10,
-                -10,  5,  0,  0,  0,  0,  5,-10,
-                -20,-10,-10,-10,-10,-10,-10,-20,
+                -20, -10, -10, -10, -10, -10, -10, -20, -10, 0, 0, 0, 0, 0, 0, -10, -10, 0, 5, 10,
+                10, 5, 0, -10, -10, 5, 5, 10, 10, 5, 5, -10, -10, 0, 10, 10, 10, 10, 0, -10, -10,
+                10, 10, 10, 10, 10, 10, -10, -10, 5, 0, 0, 0, 0, 5, -10, -20, -10, -10, -10, -10,
+                -10, -10, -20,
             ],
             rook: [
-                 0,  0,  0,  0,  0,  0,  0,  0,
-                 5, 10, 10, 10, 10, 10, 10,  5,
-                -5,  0,  0,  0,  0,  0,  0, -5,
-                -5,  0,  0,  0,  0,  0,  0, -5,
-                -5,  0,  0,  0,  0,  0,  0, -5,
-                -5,  0,  0,  0,  0,  0,  0, -5,
-                -5,  0,  0,  0,  0,  0,  0, -5,
-                 0,  0,  0,  5,  5,  0,  0,  0
+                0, 0, 0, 0, 0, 0, 0, 0, 5, 10, 10, 10, 10, 10, 10, 5, -5, 0, 0, 0, 0, 0, 0, -5, -5,
+                0, 0, 0, 0, 0, 0, -5, -5, 0, 0, 0, 0, 0, 0, -5, -5, 0, 0, 0, 0, 0, 0, -5, -5, 0, 0,
+                0, 0, 0, 0, -5, 0, 0, 0, 5, 5, 0, 0, 0,
             ],
             queen: [
-                -20,-10,-10, -5, -5,-10,-10,-20,
-                -10,  0,  0,  0,  0,  0,  0,-10,
-                -10,  0,  5,  5,  5,  5,  0,-10,
-                 -5,  0,  5,  5,  5,  5,  0, -5,
-                  0,  0,  5,  5,  5,  5,  0, -5,
-                -10,  5,  5,  5,  5,  5,  0,-10,
-                -10,  0,  5,  0,  0,  0,  0,-10,
-                -20,-10,-10, -5, -5,-10,-10,-20
+                -20, -10, -10, -5, -5, -10, -10, -20, -10, 0, 0, 0, 0, 0, 0, -10, -10, 0, 5, 5, 5,
+                5, 0, -10, -5, 0, 5, 5, 5, 5, 0, -5, 0, 0, 5, 5, 5, 5, 0, -5, -10, 5, 5, 5, 5, 5,
+                0, -10, -10, 0, 5, 0, 0, 0, 0, -10, -20, -10, -10, -5, -5, -10, -10, -20,
             ],
             king_middlegame: [
-                -30,-40,-40,-50,-50,-40,-40,-30,
-                -30,-40,-40,-50,-50,-40,-40,-30,
-                -30,-40,-40,-50,-50,-40,-40,-30,
-                -30,-40,-40,-50,-50,-40,-40,-30,
-                -20,-30,-30,-40,-40,-30,-30,-20,
-                -10,-20,-20,-20,-20,-20,-20,-10,
-                 20, 20,  0,  0,  0,  0, 20, 20,
-                 20, 30, 10,  0,  0, 10, 30, 20
+                -30, -40, -40, -50, -50, -40, -40, -30, -30, -40, -40, -50, -50, -40, -40, -30,
+                -30, -40, -40, -50, -50, -40, -40, -30, -30, -40, -40, -50, -50, -40, -40, -30,
+                -20, -30, -30, -40, -40, -30, -30, -20, -10, -20, -20, -20, -20, -20, -20, -10, 20,
+                20, 0, 0, 0, 0, 20, 20, 20, 30, 10, 0, 0, 10, 30, 20,
             ],
             king_endgame: [
-                -50,-40,-30,-20,-20,-30,-40,-50,
-                -30,-20,-10,  0,  0,-10,-20,-30,
-                -30,-10, 20, 30, 30, 20,-10,-30,
-                -30,-10, 30, 40, 40, 30,-10,-30,
-                -30,-10, 30, 40, 40, 30,-10,-30,
-                -30,-10, 20, 30, 30, 20,-10,-30,
-                -30,-30,  0,  0,  0,  0,-30,-30,
-                -50,-30,-30,-30,-30,-30,-30,-50
+                -50, -40, -30, -20, -20, -30, -40, -50, -30, -20, -10, 0, 0, -10, -20, -30, -30,
+                -10, 20, 30, 30, 20, -10, -30, -30, -10, 30, 40, 40, 30, -10, -30, -30, -10, 30,
+                40, 40, 30, -10, -30, -30, -10, 20, 30, 30, 20, -10, -30, -30, -30, 0, 0, 0, 0,
+                -30, -30, -50, -30, -30, -30, -30, -30, -30, -50,
             ],
         }
     }
@@ -452,7 +460,7 @@ mod tests {
         let game_state = GameState::new();
 
         let score = evaluator.evaluate(&game_state);
-        
+
         // Starting position should be approximately equal (both sides have same material and position)
         // A score of 0 or close to 0 is expected for the starting position
         assert_eq!(score, 0);

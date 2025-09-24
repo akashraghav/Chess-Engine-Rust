@@ -1,5 +1,5 @@
-pub mod standard;
 pub mod advanced;
+pub mod standard;
 
+pub use advanced::{EvaluationCache, GamePhase, OptimizedEvaluator};
 pub use standard::Evaluator;
-pub use advanced::{OptimizedEvaluator, EvaluationCache, GamePhase};
