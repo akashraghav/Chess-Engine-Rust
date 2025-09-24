@@ -1,0 +1,18 @@
+[package]
+name = "chess-benchmarks"
+version.workspace = true
+edition.workspace = true
+description = "Comprehensive benchmarks for the chess engine"
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "bench"
+path = "src/main.rs"
+
+[dependencies]
+chess-core = { path = "../crates/chess-core" }
+chess-engine = { path = "../crates/chess-engine" }
+criterion = { version = "0.5", features = ["html_reports"] }

@@ -1,0 +1,139 @@
+name: 🚀 Feature Request
+description: Suggest an idea or enhancement for this project
+title: "[FEATURE] "
+labels: ["enhancement", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature!
+        Please provide as much detail as possible to help us understand your needs.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Description
+      description: Is your feature request related to a problem? Please describe.
+      placeholder: I'm always frustrated when...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like to see implemented.
+      placeholder: I would like to see...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Describe any alternative solutions or features you've considered.
+      placeholder: I also considered...
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Feature Category
+      description: What category does this feature fall into?
+      options:
+        - Chess AI/Algorithms (search, evaluation, opening book)
+        - Performance Optimization (speed, memory usage)
+        - Platform Support (new language bindings, mobile)
+        - API/Developer Experience (easier integration, better docs)
+        - Chess Rules/Variants (new game types, rule extensions)
+        - User Interface/Tools (analysis tools, debugging)
+        - Other (specify in additional context)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How important is this feature to you?
+      options:
+        - High (blocking current work)
+        - Medium (would significantly improve workflow)
+        - Low (nice to have)
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Use Cases
+      description: Describe specific use cases where this feature would be helpful.
+      placeholder: |
+        1. When building a chess training app...
+        2. When analyzing tournament games...
+        3. When integrating with chess databases...
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Implementation Ideas
+      description: Do you have any ideas on how this could be implemented?
+      placeholder: |
+        This could be implemented by:
+        - Adding a new module for...
+        - Extending the existing API with...
+        - Using algorithm X for...
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Code Examples
+      description: If applicable, provide examples of how you'd like to use this feature.
+      render: rust
+      placeholder: |
+        // Example usage:
+        let engine = ChessEngineBuilder::new()
+            .with_new_feature(parameters)
+            .build()?;
+
+        let result = engine.use_new_feature()?;
+
+  - type: textarea
+    id: research
+    attributes:
+      label: Related Research/References
+      description: Any research papers, articles, or other chess engines that implement similar features?
+      placeholder: |
+        - Paper: "Advanced Chess AI Techniques" by Author (link)
+        - Implementation in Stockfish: (link)
+        - Discussion on chess programming wiki: (link)
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution Interest
+      description: Are you interested in contributing to this feature?
+      options:
+        - label: I'm interested in working on this feature myself
+        - label: I can help with testing once implemented
+        - label: I can provide domain expertise/guidance
+        - label: I would prefer someone else to implement this
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context, mockups, or screenshots about the feature request here.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm you have done the following:
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have clearly described the problem and proposed solution
+          required: true
+        - label: I have provided specific use cases for this feature
+          required: true

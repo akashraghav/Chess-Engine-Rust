@@ -1,0 +1,36 @@
+[package]
+name = "chess-core"
+version.workspace = true
+edition.workspace = true
+description = "Core chess engine library with efficient board representation, move generation, and search algorithms"
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+keywords.workspace = true
+categories.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+rayon = "1.11"
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "move_generation"
+harness = false
+
+[[bench]]
+name = "search"
+harness = false
+
+[[bench]]
+name = "evaluation"
+harness = false
+
+[features]
+default = ["simd"]
+simd = []

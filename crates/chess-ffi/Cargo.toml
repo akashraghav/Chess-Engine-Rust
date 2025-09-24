@@ -1,0 +1,20 @@
+[package]
+name = "chess-ffi"
+version.workspace = true
+edition.workspace = true
+description = "C FFI bindings for the chess engine"
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+keywords.workspace = true
+categories.workspace = true
+rust-version.workspace = true
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+chess-engine = { path = "../chess-engine" }
+chess-core = { path = "../chess-core" }

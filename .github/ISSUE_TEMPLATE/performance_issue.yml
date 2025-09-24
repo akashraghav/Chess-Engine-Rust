@@ -1,0 +1,193 @@
+name: ⚡ Performance Issue
+description: Report a performance problem or regression
+title: "[PERF] "
+labels: ["performance", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a performance issue!
+        Performance is critical for chess engines, so we take these reports seriously.
+
+  - type: textarea
+    id: performance-issue
+    attributes:
+      label: Performance Problem Description
+      description: Describe the performance issue you're experiencing.
+      placeholder: The engine is taking too long to...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: performance-category
+    attributes:
+      label: Performance Category
+      description: What type of performance issue is this?
+      options:
+        - Move Generation (slow move generation)
+        - Search Speed (slow best move calculation)
+        - Position Evaluation (slow position scoring)
+        - Memory Usage (high memory consumption)
+        - Startup Time (slow engine initialization)
+        - Threading/Parallelism (poor multi-core utilization)
+        - Platform-Specific (performance varies by OS/architecture)
+        - Regression (performance worse than previous version)
+        - Other (specify in description)
+    validations:
+      required: true
+
+  - type: textarea
+    id: benchmark-data
+    attributes:
+      label: Benchmark Data
+      description: Provide specific performance measurements if available.
+      placeholder: |
+        Current performance:
+        - Move generation: X moves/second
+        - Search at depth Y: Z seconds
+        - Memory usage: A MB
+
+        Expected performance:
+        - Move generation: Should be faster than X
+        - Based on similar engines/previous versions
+      render: markdown
+
+  - type: textarea
+    id: reproduce-perf
+    attributes:
+      label: Steps to Reproduce Performance Issue
+      description: How can we reproduce this performance problem?
+      placeholder: |
+        1. Create engine with configuration X
+        2. Load position Y (FEN string if specific)
+        3. Run operation Z
+        4. Measure performance with tool/method
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: code-sample-perf
+    attributes:
+      label: Code Sample (Performance Test)
+      description: Minimal code that demonstrates the performance issue
+      render: rust
+      placeholder: |
+        use std::time::Instant;
+        use chess_engine::*;
+
+        let mut engine = ChessEngineBuilder::new()
+            .with_depth(8)
+            .build().unwrap();
+
+        let start = Instant::now();
+        // ... operation that's slow
+        let duration = start.elapsed();
+
+        println!("Operation took: {:?}", duration);
+        // Expected: < 100ms, Actual: > 2000ms
+
+  - type: textarea
+    id: profiling-data
+    attributes:
+      label: Profiling Data
+      description: If you've done any profiling, please share the results.
+      placeholder: |
+        Profiling results (from cargo flamegraph, perf, etc.):
+        - Function X takes 60% of CPU time
+        - Memory allocations in module Y
+        - Hot paths identified: ...
+      render: markdown
+
+  - type: input
+    id: version-perf
+    attributes:
+      label: Version
+      description: What version are you testing?
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: comparison
+    attributes:
+      label: Performance Comparison
+      description: How does this compare to other versions or similar engines?
+      placeholder: |
+        Comparison data:
+        - Previous version (0.0.9): X moves/second
+        - Current version (0.1.0): Y moves/second (regression!)
+        - Similar engine (Stockfish/other): Z moves/second
+      render: markdown
+
+  - type: textarea
+    id: environment-perf
+    attributes:
+      label: Environment Details
+      description: Hardware and software environment details
+      value: |
+        **Hardware:**
+        - CPU: [e.g. Intel i9-12900K, Apple M2 Pro, AMD Ryzen 7950X]
+        - RAM: [e.g. 32GB DDR5-5600]
+        - Storage: [e.g. NVMe SSD, HDD]
+
+        **Software:**
+        - OS: [e.g. macOS 14.0, Windows 11, Ubuntu 22.04]
+        - Rust version: [output of `rustc --version`]
+        - Build profile: [debug/release]
+        - Compilation flags: [any special RUSTFLAGS]
+        - Target: [e.g. x86_64-unknown-linux-gnu]
+      render: markdown
+
+  - type: dropdown
+    id: regression-check
+    attributes:
+      label: Is this a regression?
+      description: Did this work better in a previous version?
+      options:
+        - "Yes - it was faster in a previous version"
+        - "No - this has always been slow"
+        - "Unknown - first time testing this scenario"
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact Assessment
+      description: How does this performance issue affect your use case?
+      placeholder: |
+        Impact on my use case:
+        - Makes real-time gameplay impossible
+        - Increases server costs significantly
+        - Users are experiencing timeouts
+        - Battery drain on mobile devices
+      render: markdown
+
+  - type: textarea
+    id: additional-perf-context
+    attributes:
+      label: Additional Context
+      description: Any other relevant information about the performance issue.
+      placeholder: |
+        Additional details:
+        - Only happens with specific positions/configurations
+        - Performance varies significantly between runs
+        - Memory usage grows over time
+        - Related to specific chess positions or game phases
+
+  - type: checkboxes
+    id: checklist-perf
+    attributes:
+      label: Checklist
+      description: Please confirm you have done the following:
+      options:
+        - label: I have tested with release build (--release flag)
+          required: true
+        - label: I have provided specific performance measurements
+          required: true
+        - label: I have included my hardware/software environment details
+          required: true
+        - label: I have searched existing issues for similar performance problems
+          required: true

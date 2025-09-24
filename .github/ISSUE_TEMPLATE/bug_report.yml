@@ -1,0 +1,119 @@
+name: 🐛 Bug Report
+description: Report a bug or unexpected behavior
+title: "[BUG] "
+labels: ["bug", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+        Please provide as much detail as possible to help us reproduce and fix the issue.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear and concise description of what the bug is.
+      placeholder: The engine crashes when...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+      description: A clear and concise description of what you expected to happen.
+      placeholder: I expected the engine to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Create engine with depth 6
+        2. Make move 'e2e4'
+        3. Call find_best_move()
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: code-sample
+    attributes:
+      label: Code Sample
+      description: Minimal code sample that reproduces the issue
+      render: rust
+      placeholder: |
+        use chess_engine::{ChessEngineBuilder};
+
+        let mut engine = ChessEngineBuilder::new().build().unwrap();
+        engine.make_move_from_uci("e2e4").unwrap();
+        // Bug occurs here...
+
+  - type: dropdown
+    id: language
+    attributes:
+      label: Language/Platform
+      description: Which language binding or platform are you using?
+      options:
+        - Rust (native)
+        - Python
+        - Java/Kotlin
+        - JavaScript/WebAssembly
+        - C/C++
+        - Android
+        - Other (specify in additional context)
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version of chess-engine-rust are you running?
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: |
+        Please provide details about your environment:
+      value: |
+        - OS: [e.g. macOS 14.0, Windows 11, Ubuntu 22.04]
+        - Rust version: [output of `rustc --version`]
+        - Cargo version: [output of `cargo --version`]
+        - Target architecture: [e.g. x86_64, aarch64]
+      render: markdown
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error Output/Logs
+      description: If applicable, add any error messages or log output
+      render: shell
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here, such as performance impact, frequency of occurrence, etc.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm you have done the following:
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have provided a minimal code sample that reproduces the issue
+          required: true
+        - label: I have included my environment details
+          required: true

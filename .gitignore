@@ -1,0 +1,110 @@
+# Rust / Cargo
+/target/
+**/target/
+**/*.rs.bk
+
+# Cargo debug artifacts
+**/*.pdb
+**/*.dSYM/
+**/*.dSYM/**
+
+# Lockfiles
+# Keep Cargo.lock in VCS for binaries; workspace already tracks it.
+
+# Build scripts & generated files
+**/*.rlib
+**/*.rmeta
+**/*.d
+**/*.o
+**/*.obj
+**/*.a
+**/*.lib
+**/*.dll
+**/*.so
+**/*.dylib
+
+# Criterion benchmark output
+/target/criterion/
+**/criterion/
+
+# IDE/editor
+/.vscode/
+/.idea/
+**/.vscode/
+**/.idea/
+*.code-workspace
+
+# OS files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Logs & temps
+*.log
+logs/
+/tmp/
+**/tmp/
+*.tmp
+*.swp
+*.swo
+
+# Coverage & profiling
+/coverage/
+**/coverage/
+htmlcov/
+*.profraw
+*.profdata
+*.gcno
+*.gcda
+*.lcov
+
+# Python bindings (if built locally)
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+
+# WASM build artifacts
+**/wasm-pack.log
+**/pkg/
+**/node_modules/
+
+# Android/Java artifacts
+**/build/
+**/.gradle/
+**/local.properties
+**/.settings/
+**/.classpath
+**/.project
+**/.idea/caches
+**/.idea/libraries
+**/.idea/modules.xml
+**/.idea/workspace.xml
+**/.idea/navEditor.xml
+**/.idea/assetWizardSettings.xml
+**/*.iml
+
+# JNI headers generated
+**/jni/*.class
+**/jni/*.jar
+**/jni/*.keystore
+
+# Artifacts & reports
+**/*.bench
+**/*.bench.log
+**/report/
+**/reports/
+
+# Gnuplot caches (Criterion optional)
+**/*.gp
+**/*.svg
+**/*.png
+
+# Macros/notes
+.claude/

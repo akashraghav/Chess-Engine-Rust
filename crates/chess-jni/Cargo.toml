@@ -1,0 +1,21 @@
+[package]
+name = "chess-jni"
+version.workspace = true
+edition.workspace = true
+description = "JNI bindings for the chess engine"
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+keywords.workspace = true
+categories.workspace = true
+rust-version.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+chess-engine = { path = "../chess-engine" }
+chess-core = { path = "../chess-core" }
+jni = "0.20"

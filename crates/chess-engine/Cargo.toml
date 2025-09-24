@@ -1,0 +1,20 @@
+[package]
+name = "chess-engine"
+version.workspace = true
+edition.workspace = true
+description = "High-level chess engine with event handling and configuration"
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+keywords.workspace = true
+categories.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+chess-core = { path = "../chess-core" }
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+criterion = "0.5"
